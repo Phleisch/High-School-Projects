@@ -17,19 +17,19 @@
  ///////////////////////////////////////////
  
 
-import java.applet.*;
-import java.awt.Cursor;
+//import java.applet.*;
+//import java.awt.Cursor;
 import java.util.*;
 import java.io.*; 
-import java.applet.Applet;
+//import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.net.*;
-import javax.imageio.ImageIO;
+//import java.net.*;
+//import javax.imageio.ImageIO;
 
 public class MagicCube
 {
@@ -49,7 +49,6 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
 	private boolean changeMade;
 	private Cube magic;
 	private boolean shifting;
-	final private int cubeSize = 360;
 	private double hypotenuse;
 	final private int appX = 1000;
 	final private int appY = 650;
@@ -73,7 +72,8 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     {
     	changeMade = true;
     	firstRun = true;
-    	hypotenuse = Math.sqrt(2*Math.pow(cubeSize/2,2));
+		int cubeSize = 360;
+		hypotenuse = Math.sqrt(2*Math.pow(cubeSize /2,2));
     	magic = new Cube();
     	lastX = 0;
     	lastY = 0;
@@ -91,7 +91,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
         addKeyListener(this);
     }
     
-    public Simulator() throws IOException
+    Simulator() throws IOException
 	{
 		init();
 	}
@@ -132,7 +132,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     	repaint();
     }
     
-    public void printPoints()
+    private void printPoints()
     {
     	changeMade = false;
     	Part[][][] toPrint = magic.getCube();
@@ -154,13 +154,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     	}
     }
     
-    public void drawMenu(Graphics g)
-    {
-    	
-    	
-    }
-    
-    public void rotate(Graphics g, double degrees)
+    /*public void rotate(Graphics g, double degrees)
     {
     	double midX = appX/2;
     	double midY = appY/2;
@@ -177,23 +171,8 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     		yPoints[n] = (int) (midY+(hyp*Math.sin(Math.toRadians(degrees+90*n))));
     	}
     	g.fillPolygon(xPoints,yPoints,xPoints.length);
-    }
-    
-    public void gridLines(Graphics g)
-    {
-    	
-    }
-    
-    public void checkBounds()
-    {
-    	
-    }
-    
-    public void checkLevelComplete()
-    {
-    	
-    }
-    
+    }*/
+
     public void mouseClicked(MouseEvent e)
     {
     	lastX = e.getX();
@@ -236,9 +215,9 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     						case 2: nonNeighbor = 0; neighbors[0] = 1; neighbors[1] = 3; break;
     						case 3: nonNeighbor = 1; neighbors[0] = 0; neighbors[1] = 2; break;
     					}
-    					
+
     					//int pointX = tempX[i] - tempX[fixed];
-    					
+
     					//////////////////// Corner Angle, opposite of Fixed Angle //////////////////////
     					int noNeighX = tempX[nonNeighbor] - tempX[fixed];
     					int noNeighY = tempY[nonNeighbor] - tempY[fixed];
@@ -253,7 +232,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     						noNeighAngle+=2.0*Math.PI;
     					returnX[nonNeighbor] = (int) (Math.round(tempX[fixed] + hypotenuse * Math.cos(noNeighAngle + changeY*Math.PI/180.0)));
     					returnY[nonNeighbor] = (int) (Math.round(tempY[fixed] + hypotenuse * Math.sin(noNeighAngle + changeY*Math.PI/180.0)));
-    					
+
     					//////////////////// Adjacent Angles, neighbors of Fixed Angle //////////////////////
     					for(int i = 0; i < 2; i++)
     					{
@@ -280,7 +259,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     				}
     			}
     		}*/
-    		
+
     		for(Part[][] atemp : magic.getCube())
     		{
     			for(Part[] btemp : atemp)
@@ -343,7 +322,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
 	    							thisHypotenuse = 0.0;
 	    					}
 	    					angle = angle + changeY*Math.PI/180.0;
-	    						
+
 	    					if(i<4)
 	    					{
 	    						//temp.identity();
@@ -373,18 +352,18 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     					}
     					temp.setX1(returnX1); temp.setX2(returnX2);
     					temp.setY1(returnY1); temp.setY2(returnY2);
-    					System.out.println(); 
+    					System.out.println();
     				}
     			}
     		}
-    		System.out.println("//////////////////////////////////////\n"); 
-    	
-    		
+    		System.out.println("//////////////////////////////////////\n");
+
+
     	}
     	/////////////////////////////////////////////////////////////////////////////////
     	/////////////////////////////////////////////////////////////////////////////////
-    	
-    	
+
+
     	////////////////////////////// X-Axis Rotation /////////////////////////////
     	//////////////////////////////   In Progress!  /////////////////////////////
     	else
@@ -399,7 +378,7 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
     					int[] tempY1 = temp.getY1(); int[] tempY2 = temp.getY2();
     					int[] returnX1 = new int[4]; int[] returnX2 = new int[4];
     					int[] returnY1 = new int[4]; int[] returnY2 = new int[4];
-    					
+
     				}
     			}
     		}
@@ -419,48 +398,9 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
    	public void keyTyped(KeyEvent evt)      { }
 	public void keyPressed(KeyEvent evt)
 	{
-		if(evt.getKeyCode() == KeyEvent.VK_UP)
-		{
-			
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_RIGHT)
-		{
-			
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_LEFT)
-		{
-			
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_DOWN)
-		{
-			
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_CONTROL)
-		{
-			
-		}
-		else if(evt.getKeyCode() == KeyEvent.VK_SHIFT)
+		if(evt.getKeyCode() == KeyEvent.VK_SHIFT)
 		{
 			shifting = true;
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_Q)
-		{
-			
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_SPACE)
-		{
-			
-		}
-		
-		else if(evt.getKeyCode() == KeyEvent.VK_F)
-		{
-			
 		}
 		
 		repaint();
@@ -471,20 +411,20 @@ class Cube
 {
 	private Part[][][] pieces;
 	private final int cubeSize = 360;
-	private final int appX = 1000;
 	private final int appY = 650;
 	
 	public Cube()
 	{
 		pieces = new Part[2][2][2];
-		pieces[0][0][0] = new Part("G","O","W",(appX-cubeSize)/2,(appY-cubeSize)/2,(cubeSize),6);
-		pieces[0][1][0] = new Part("G","R","W",appX/2,(appY-cubeSize)/2,(cubeSize),7);
-		pieces[1][0][0] = new Part("G","O","Y",(appX-cubeSize)/2,appY/2,(cubeSize),5);
-		pieces[1][1][0] = new Part("G","R","Y",appX/2,appY/2,(cubeSize),4);
-		pieces[0][0][1] = new Part("B","O","W",(appX-cubeSize)/2,(appY-cubeSize)/2,(cubeSize/2),2);
-		pieces[0][1][1] = new Part("B","R","W",appX/2,(appY-cubeSize)/2,(cubeSize/2),3);
-		pieces[1][0][1] = new Part("B","O","Y",(appX-cubeSize)/2,appY/2,(cubeSize/2),1);
-		pieces[1][1][1] = new Part("B","R","Y",appX/2,appY/2,(cubeSize/2),0);
+		int appX = 1000;
+		pieces[0][0][0] = new Part("G","O","W",(appX -cubeSize)/2,(appY-cubeSize)/2,(cubeSize),6);
+		pieces[0][1][0] = new Part("G","R","W", appX /2,(appY-cubeSize)/2,(cubeSize),7);
+		pieces[1][0][0] = new Part("G","O","Y",(appX -cubeSize)/2,appY/2,(cubeSize),5);
+		pieces[1][1][0] = new Part("G","R","Y", appX /2,appY/2,(cubeSize),4);
+		pieces[0][0][1] = new Part("B","O","W",(appX -cubeSize)/2,(appY-cubeSize)/2,(cubeSize/2),2);
+		pieces[0][1][1] = new Part("B","R","W", appX /2,(appY-cubeSize)/2,(cubeSize/2),3);
+		pieces[1][0][1] = new Part("B","O","Y",(appX -cubeSize)/2,appY/2,(cubeSize/2),1);
+		pieces[1][1][1] = new Part("B","R","Y", appX /2,appY/2,(cubeSize/2),0);
 	}
 	
 	public void rotate(String letter)
