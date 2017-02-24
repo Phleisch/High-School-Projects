@@ -61,24 +61,24 @@ class Game
 		capTurn = true;
 		pieces = new HashMap<>();
 		
-		//        LowerCase Pieces						      UpperCase Pieces
+		//        LowerCase Pieces						      			UpperCase Pieces
 		
-		pieces.put("a8",new Rook("a8","nCap")); 	pieces.put("a1",new Rook("a1","cap"));
+		pieces.put("a8",new Rook("a8","nCap")); 		pieces.put("a1",new Rook("a1","cap"));
 		pieces.put("b8",new Knight("b8","nCap")); 	pieces.put("b1",new Knight("b1","cap"));
 		pieces.put("c8",new Bishop("c8","nCap")); 	pieces.put("c1",new Bishop("c1","cap"));
-		pieces.put("d8",new Queen("d8","nCap")); 	pieces.put("d1",new Queen("d1","cap"));
-		pieces.put("e8",new King("e8","nCap")); 	pieces.put("e1",new King("e1","cap"));
+		pieces.put("d8",new Queen("d8","nCap")); 		pieces.put("d1",new Queen("d1","cap"));
+		pieces.put("e8",new King("e8","nCap")); 		pieces.put("e1",new King("e1","cap"));
 		pieces.put("f8",new Bishop("f8","nCap")); 	pieces.put("f1",new Bishop("f1","cap"));
 		pieces.put("g8",new Knight("g8","nCap")); 	pieces.put("g1",new Knight("g1","cap"));
-		pieces.put("h8",new Rook("h8","nCap")); 	pieces.put("h1",new Rook("h1","cap"));
-		pieces.put("a7",new Pawn("a7","nCap")); 	pieces.put("a2",new Pawn("a2","cap"));
-		pieces.put("b7",new Pawn("b7","nCap")); 	pieces.put("b2",new Pawn("b2","cap"));
-		pieces.put("c7",new Pawn("c7","nCap")); 	pieces.put("c2",new Pawn("c2","cap"));
-		pieces.put("d7",new Pawn("d7","nCap")); 	pieces.put("d2",new Pawn("d2","cap"));
-		pieces.put("e7",new Pawn("e7","nCap")); 	pieces.put("e2",new Pawn("e2","cap"));
-		pieces.put("f7",new Pawn("f7","nCap")); 	pieces.put("f2",new Pawn("f2","cap"));
-		pieces.put("g7",new Pawn("g7","nCap")); 	pieces.put("g2",new Pawn("g2","cap"));
-		pieces.put("h7",new Pawn("h7","nCap")); 	pieces.put("h2",new Pawn("h2","cap"));
+		pieces.put("h8",new Rook("h8","nCap")); 		pieces.put("h1",new Rook("h1","cap"));
+		pieces.put("a7",new Pawn("a7","nCap")); 		pieces.put("a2",new Pawn("a2","cap"));
+		pieces.put("b7",new Pawn("b7","nCap")); 		pieces.put("b2",new Pawn("b2","cap"));
+		pieces.put("c7",new Pawn("c7","nCap")); 		pieces.put("c2",new Pawn("c2","cap"));
+		pieces.put("d7",new Pawn("d7","nCap")); 		pieces.put("d2",new Pawn("d2","cap"));
+		pieces.put("e7",new Pawn("e7","nCap")); 		pieces.put("e2",new Pawn("e2","cap"));
+		pieces.put("f7",new Pawn("f7","nCap")); 		pieces.put("f2",new Pawn("f2","cap"));
+		pieces.put("g7",new Pawn("g7","nCap")); 		pieces.put("g2",new Pawn("g2","cap"));
+		pieces.put("h7",new Pawn("h7","nCap")); 		pieces.put("h2",new Pawn("h2","cap"));
 	}
 	
 	void display()
