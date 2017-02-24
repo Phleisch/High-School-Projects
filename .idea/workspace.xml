@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Chess/src/ChessServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+    <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="Minor changes to the code.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/Chess.java" afterPath="$PROJECT_DIR$/Chess/src/Chess.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -43,8 +39,8 @@
       <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="369">
-              <caret line="234" column="4" lean-forward="false" selection-start-line="234" selection-start-column="4" selection-end-line="234" selection-end-column="4" />
+            <state relative-caret-position="1644">
+              <caret line="234" column="0" lean-forward="false" selection-start-line="234" selection-start-column="0" selection-end-line="234" selection-end-column="0" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -664,7 +660,14 @@
       <option name="project" value="LOCAL" />
       <updated>1487904444774</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Minor changes to the code.">
+      <created>1487974545553</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1487974545553</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -718,7 +721,8 @@
     <MESSAGE value="Main Java file for my text-based Chess game. Early Version." />
     <MESSAGE value="Java 3D Graphics Project for 2x2x2 Cube rendering." />
     <MESSAGE value="Minor changes to clean up the code." />
-    <option name="LAST_COMMIT_MESSAGE" value="Minor changes to clean up the code." />
+    <MESSAGE value="Minor changes to the code." />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor changes to the code." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -889,8 +893,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="369">
-          <caret line="234" column="4" lean-forward="false" selection-start-line="234" selection-start-column="4" selection-end-line="234" selection-end-column="4" />
+        <state relative-caret-position="1644">
+          <caret line="234" column="0" lean-forward="false" selection-start-line="234" selection-start-column="0" selection-end-line="234" selection-end-column="0" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
