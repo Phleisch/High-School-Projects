@@ -1,5 +1,6 @@
 import java.util.*;
 //import java.io.*;
+import java.lang.*;
 
 public class Chess
 {
@@ -112,7 +113,6 @@ class Game
 		piece = piece.toLowerCase();
 		toMove = toMove.toLowerCase();
 		int row, col, col2, row2;
-		row=col=row2=col2=0;
 		try
 		{
 			row = 8-Integer.parseInt(""+piece.charAt(1));
@@ -186,7 +186,7 @@ class Game
 abstract class Piece
 {
 	protected String location;
-	protected String owner;
+	String owner;
 	
 	Piece(String l, String o)
 	{
@@ -196,6 +196,28 @@ abstract class Piece
 	
 	abstract public boolean validMove(int x1, int y1, int x2, int y2, char[][] board);
 	String getOwner(){return owner;}
+	protected boolean pathIsClear(char[][] board, int x1, int y1, int x2, int y2)
+	{
+		System.out.println("Anything");
+		boolean works = true;
+		int changeX = x2-x1;
+		int changeY = y2-y1;
+		int max = Math.max(Math.abs(changeX),Math.abs(changeY));
+		if(changeX!=0)
+			changeX /= Math.abs(x2-x1);
+		if(changeY!=0)
+			changeY /= Math.abs(y2-y1);
+		int currX = x1+changeX;
+		int currY = y1+changeY;
+		for(int i = 1; i < max; i++){
+			if(board[currX][currY]!=' ' && board[currX][currY]!= '.')
+				works = false;
+			System.out.println("currX: "+currX+", currY: "+currY);
+			currX+=changeX;
+			currY+=changeY;
+		}
+		return works;
+	}
 	
 }
 
@@ -212,6 +234,8 @@ class Rook extends Piece
 		int dY = Math.abs(y2-y1);
 		char key = owner.equals("cap") ? 'A' : 'a';
 		if( Math.abs(board[x2][y2]-key) <= 26 && !(board[x2][y2] != ' ' || board[x2][y2] != '.' ) )
+			return false;
+		if(!pathIsClear(board,x1,y1,x2,y2))
 			return false;
         return !(dX != 0 && dY != 0);
     }
@@ -250,15 +274,16 @@ class Bishop extends Piece
 		char key = owner.equals("cap") ? 'A' : 'a';
 		if( Math.abs(board[x2][y2]-key) <= 26 && !(board[x2][y2] != ' ' || board[x2][y2] != '.' ) )
 			return false;
-		if( dX != dY )
+		if(!pathIsClear(board,x1,y1,x2,y2))
 			return false;
-		return true;
+		return dX == dY;
 	}
 }
 
 class King extends Piece
 {
 	private boolean moved;
+	private boolean isCastle;
 	King(String l, String o)
 	{
 		super(l,o);
@@ -267,6 +292,7 @@ class King extends Piece
 	
 	public boolean validMove(int x1, int y1, int x2, int y2, char[][] board)
 	{
+		isCastle = false;
 		int dX = Math.abs(x2-x1);
 		int dY = Math.abs(y2-y1);
 		char key = owner.equals("cap") ? 'A' : 'a';
@@ -275,12 +301,17 @@ class King extends Piece
 		if( !moved && dX == 2 && dY == 0 && (board[x2+1][y2] == key+17 || board[x2-1][y2] == key+17) )
 		{
 			moved = true;
+			isCastle = true;
 			return true;
 		}
 		if( dX > 1 || dY > 1 )
 			return false;
 		moved = true;
 		return true;
+	}
+
+	public boolean isCastle(){
+		return isCastle;
 	}
 }
 
@@ -296,7 +327,9 @@ class Queen extends Piece
 		int dX = Math.abs(x2-x1);
 		int dY = Math.abs(y2-y1);
 		char key = owner.equals("cap") ? 'A' : 'a';
-		if( Math.abs(board[x2][y2]-key) <= 26 && !(board[x2][y2] != ' ' || board[x2][y2] != '.' ) )
+		if( Math.abs(board[x2][y2]-key) <= 26 && (board[x2][y2] != ' ' && board[x2][y2] != '.' ) )
+			return false;
+		if(!pathIsClear(board,x1,y1,x2,y2))
 			return false;
         return (dX == dY) || (dX > 0 && dY == 0) || (dX == 0 && dY > 0);
     }
