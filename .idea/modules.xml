@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Chapp/Chapp.iml" filepath="$PROJECT_DIR$/Chapp/Chapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Chess/Chess.iml" filepath="$PROJECT_DIR$/Chess/Chess.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Creative Words/Creative Words.iml" filepath="$PROJECT_DIR$/Creative Words/Creative Words.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Graphine/Graphine.iml" filepath="$PROJECT_DIR$/Graphine/Graphine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/High-School-Projects.iml" filepath="$PROJECT_DIR$/High-School-Projects.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Magic Cube/Magic Cube.iml" filepath="$PROJECT_DIR$/Magic Cube/Magic Cube.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Tetris/Tetris.iml" filepath="$PROJECT_DIR$/Tetris/Tetris.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Tic-Tac-Toe/Tic-Tac-Toe.iml" filepath="$PROJECT_DIR$/Tic-Tac-Toe/Tic-Tac-Toe.iml" />
+    </modules>
+  </component>
+</project>
