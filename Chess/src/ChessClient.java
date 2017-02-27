@@ -30,6 +30,7 @@ public class ChessClient
 class ClientTestServer extends Frame implements MouseListener, MouseMotionListener, KeyListener
 {
     private ArrayList<Message> messageCache;
+    private ArrayList<Match> matchCache;
     private Rectangle chatToggle, chatArea, newGame;
     private boolean chatVisible;
     private Client local;
@@ -41,7 +42,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private Graphics backg;
     private Color transparentGray, babyBlue, lightGrey, lightGreyT;
     private int getWidth, getHeight, borderLeft, borderRight, borderTop, borderBottom, chatLeft,
-            messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart;
+            messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
+            gameButtonHeight, buttonStartHeight;
     private boolean firstGraphicsWindow, chatting;
     private Image cat, chessBackground;
     private Font bigFont,mediumFont, Default;
@@ -53,11 +55,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        matchCache = new ArrayList<>();
         chatLeft = 345;
         boxSize = 23;
+        gameButtonHeight = 100;
+        buttonStartHeight = borderTop+39;
         messageCache = new ArrayList<>();
-        try {cat = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
-            chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\Pictures\\chessBackground.jpg"));
+        try {//cat = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
+            chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
         } catch(IOException e) {System.out.println("Could not load images.");}
         chatVisible = true;
         chatting = false;
@@ -147,6 +152,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             try{
                 objectToServer.writeObject(2);
                 objectToServer.reset();
+                objectToServer.writeObject(3);
+                objectToServer.reset();
             }
             catch(Exception e)
             {
@@ -154,7 +161,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             }
             chatToggle = new Rectangle(getWidth-(chatLeft+30),borderTop+39,30,getHeight);
             chatArea = new Rectangle(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
-            newGame = new Rectangle(getWidth-125,borderTop,125,38);
+            newGame = new Rectangle(getWidth-150,borderTop,150,38);
             messStart = getWidth-chatLeft+5;
         }
         g.setFont(mediumFont);
@@ -236,6 +243,18 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             }
             longMessage(g, (getHeight - borderBottom - (boxSize * Lines.size())), true);
             textBoxYValue = (getHeight - borderBottom - (boxSize * (Lines.size()+1)));
+        }
+    }
+
+    private void drawMatches(Graphics g)
+    {
+        buttonStartHeight = borderTop+39;
+        for(Match a : matchCache)
+        {
+            g.setColor(transparentGray);
+            g.fillRect(borderLeft,buttonStartHeight,chatLeft-borderLeft,gameButtonHeight);
+            g.setColor(Color.BLACK);
+            g.drawRect(borderLeft,buttonStartHeight,chatLeft-borderLeft,gameButtonHeight);
         }
     }
 
@@ -404,6 +423,17 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             }
             chatVisible = !chatVisible;
         }
+        else if(newGame.contains(pressX,pressY))
+        {
+            try{
+                objectToServer.writeObject(new PVP(local));
+                objectToServer.reset();
+            } catch(IOException ex)
+            {
+                System.out.println("Could not send match.");
+            }
+            localInput = "";
+        }
         else chatting = chatArea.contains(pressX, pressY);
         repaint();
     }
@@ -462,8 +492,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             {
                 try{
                     Object object = objectFromServer.readObject();
-                    messageCache = (ArrayList<Message>) object;
-                }catch(Exception e){System.out.println("A fatal error occurred."); break;}
+                    if(object instanceof ArrayList) {
+                        ArrayList curr = (ArrayList)object;
+                        if(curr.get(0) instanceof Message)
+                            messageCache = (ArrayList<Message>)object;
+                        else
+                            matchCache = (ArrayList<Match>)object;
+                    }
+                }catch(Exception e){System.out.println(e); break;}
             }
             System.exit(1);
         }

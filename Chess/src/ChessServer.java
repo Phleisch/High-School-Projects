@@ -18,6 +18,7 @@ public class ChessServer
     private ArrayList<Message> messages = new ArrayList<>();
     private ArrayList<Client> clients = new ArrayList<>();
     private ServerSocket serverSocket;
+    private ArrayList<Match> matches = new ArrayList<>();
     private boolean endService = false;
     public static void main(String[] args)
     {
@@ -26,19 +27,7 @@ public class ChessServer
 
     private ChessServer() {
         tasks = new ArrayList<HandleAClient>();
-
-
-
-
-
-
-        //Scanner in = new Scanner(System.in);
-
-
-
         try {
-
-
             InetAddress addr = InetAddress.getLocalHost();
             //ip = addr.getHostAddress();
             out.println("IP: " + addr);
@@ -51,24 +40,13 @@ public class ChessServer
             int clientNo = 1;
 
             while (!endService) {
-                // Listen for a new connection request
                 Socket socket = serverSocket.accept();
-
-                // Display the client number
                 out.print("Starting thread for client " + clientNo + " on " + fixDate("" + new Date()) + '\n');
-
-                // Find the client's host name, and IP address
                 InetAddress inetAddress = socket.getInetAddress();
                 out.print("Client " + clientNo + "'s IP Address is " + inetAddress.getHostAddress() + "\n");
-
-                // Create a new thread for the connection
                 HandleAClient task = new HandleAClient(socket);
                 tasks.add(task);
-
-                // Start the new thread
                 new Thread(task).start();
-
-                // Increment clientNo
                 clientNo++;
             }
         }
@@ -166,6 +144,20 @@ public class ChessServer
         }
     }
 
+    private void writeOutMatches()
+    {
+        ObjectOutputStream objectToClient;
+        for(HandleAClient task : tasks)
+        {
+            try{
+                objectToClient = task.getObjectOutput();
+                objectToClient.reset();
+                objectToClient.writeObject(matches);
+                objectToClient.reset();
+            }catch(IOException e){System.out.println("Error");}
+        }
+    }
+
     // Inner class
     // Define the thread class for handling new connection
     private class HandleAClient implements Runnable {
@@ -206,8 +198,11 @@ public class ChessServer
                         writeOutMessages();
                     } else if (object instanceof Integer) {
                         Integer curr = (Integer) object;
-                        if(curr==2){
+                        if(curr==2 && messages.size()>0){
                             objectToClient.writeObject(messages);
+                            objectToClient.reset();
+                        } else if (curr==3 && matches.size()>0){
+                            objectToClient.writeObject(matches);
                             objectToClient.reset();
                         }
                         System.out.println(curr);
@@ -221,6 +216,11 @@ public class ChessServer
                             objectToClient.writeObject(null);
                         }
                         objectToClient.reset();
+                    } else if (object instanceof Match)
+                    {
+                        Match curr = (Match)object;
+                        matches.add(curr);
+                        writeOutMatches();
                     }
                 } catch (ClassNotFoundException e) {
                     out.println("Invalid object from Client was received.");
