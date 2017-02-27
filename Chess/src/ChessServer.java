@@ -6,19 +6,25 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import static java.lang.System.*;
+
 public class ChessServer
 {
+    /*
     BufferedWriter out = null;
     boolean saveHistory = false;
+    */
     private ArrayList<HandleAClient> tasks;
-
-    ServerSocket serverSocket;
+    private ArrayList<Message> messages = new ArrayList<>();
+    private ArrayList<Client> clients = new ArrayList<>();
+    private ServerSocket serverSocket;
+    private boolean endService = false;
     public static void main(String[] args)
     {
         new ChessServer();
     }
 
-    public ChessServer() {
+    private ChessServer() {
         tasks = new ArrayList<HandleAClient>();
 
 
@@ -26,7 +32,7 @@ public class ChessServer
 
 
 
-        Scanner in = new Scanner(System.in);
+        //Scanner in = new Scanner(System.in);
 
 
 
@@ -35,26 +41,25 @@ public class ChessServer
 
             InetAddress addr = InetAddress.getLocalHost();
             //ip = addr.getHostAddress();
-            System.out.println("IP: " + addr);
+            out.println("IP: " + addr);
 
             // Create a server socket
             serverSocket = new ServerSocket(8000);
-            System.out.print("ChessServer server started on " + fixDate("" + new Date()) + '\n');
+            out.print("ChessServer server started on " + fixDate("" + new Date()) + '\n');
 
             // Number a client
             int clientNo = 1;
 
-            while (true) {
+            while (!endService) {
                 // Listen for a new connection request
                 Socket socket = serverSocket.accept();
 
                 // Display the client number
-                System.out.print("Starting thread for client " + clientNo + " on " + fixDate("" + new Date()) + '\n');
+                out.print("Starting thread for client " + clientNo + " on " + fixDate("" + new Date()) + '\n');
 
                 // Find the client's host name, and IP address
                 InetAddress inetAddress = socket.getInetAddress();
-                System.out.print("Client " + clientNo + "'s host name is " + inetAddress.getHostName() + "\n");
-                System.out.print("Client " + clientNo + "'s IP Address is " + inetAddress.getHostAddress() + "\n");
+                out.print("Client " + clientNo + "'s IP Address is " + inetAddress.getHostAddress() + "\n");
 
                 // Create a new thread for the connection
                 HandleAClient task = new HandleAClient(socket);
@@ -68,11 +73,11 @@ public class ChessServer
             }
         }
         catch(IOException ex) {
-            System.err.println(ex);
+            out.println("An error occur.");
         }
     }
 
-    public String fixDate(String date)
+    private String fixDate(String date)
     {
         String[] dateComponents = date.split(" ");
         String year = dateComponents[5].substring(2,4);
@@ -80,7 +85,7 @@ public class ChessServer
         String month = dateComponents[1];
         String numberDay = dateComponents[2];
         String time = dateComponents[3];
-        String amPM ="";
+        String amPM;
 
         if(numberDay.charAt(0) == '0')
             numberDay = numberDay.substring(1,2);
@@ -119,91 +124,111 @@ public class ChessServer
             case "Fri": day = "Friday"; break;
             case "Sat": day = "Saturday"; break;
             case "Sun": day = "Sunday"; break;
-            default: day = "Noday"; break;
+            default: day = "No day"; break;
         }
 
-        String newDate = day + ", " + month + "/" + numberDay + "/" + year + " at "
+        return day + ", " + month + "/" + numberDay + "/" + year + " at "
                 + hour + time.substring(2,time.length()) + " " + amPM;
-
-        return newDate;
     }
 
-    public void stopServer()
+    private boolean nameTaken(String name)
     {
+        boolean taken = false;
+        for(Client a : clients)
+        {
+            if(a.getName().equals(name))
+                taken = true;
+        }
+        return taken;
+    }
 
+
+
+    /*public void stopServer()
+    {
+        endService = true;
         try{serverSocket.close();
-            System.exit(0);}
-        catch(IOException e){}
+            exit(0);}
+        catch(IOException e){out.println("Could not stop server.");}
+    }*/
+
+    private void writeOutMessages()
+    {
+        ObjectOutputStream objectToClient;
+        for(HandleAClient task : tasks)
+        {
+                try{
+                    objectToClient = task.getObjectOutput();
+                    objectToClient.reset();
+                    objectToClient.writeObject(messages);
+                    objectToClient.reset();
+                }catch(IOException e){System.out.println("Error");}
+        }
     }
 
     // Inner class
     // Define the thread class for handling new connection
-    class HandleAClient implements Runnable {
+    private class HandleAClient implements Runnable {
         private Socket socket; // A connected socket
+        boolean serving = true;
         ObjectOutputStream objectToClient;
         ObjectInputStream objectFromClient;
-        String Designation;
-        String userName;
+        Client client = null;
 
         /** Construct a thread */
-        public HandleAClient(Socket socket) {
-            this.socket = socket;
+        HandleAClient(Socket sock) {
+            socket = sock;
             try{
                 objectToClient = new ObjectOutputStream(socket.getOutputStream());
                 objectFromClient = new ObjectInputStream(socket.getInputStream());
-            }catch(IOException e){}
+            }catch(IOException e){out.println("Could not connect to Client.");}
         }
 
+        public ObjectOutputStream getObjectOutput() {return objectToClient;}
 
-        public ObjectOutputStream getObjectOutput()
-        {
-            return objectToClient;
-        }
-
-        public String getLocation()
-        {
-            return Designation;
-        }
-
-        public String getUsername()
+        /*public String getUsername()
         {
             return userName;
-        }
+        }*/
 
         /** Run a thread */
         public void run() {
             try {
                 // Create data input and output streams
-                Designation = "";
                 // Continuously serve the client
-                while (true) {
-                    try{Object object = objectFromClient.readObject();
-                        if(object instanceof Integer)
-                        {
-
+                while (serving) try {
+                    Object object = objectFromClient.readObject();
+                    if (object instanceof Message) {
+                        Message temp = (Message)object;
+                        messages.add(0,temp);
+                        System.out.println("Received <Message: "+temp.getMessage()+"> from <Client: "
+                                +client.getName()+"> on " + fixDate("" + new Date()));
+                        writeOutMessages();
+                    } else if (object instanceof Integer) {
+                        Integer curr = (Integer) object;
+                        if(curr==2){
+                            objectToClient.writeObject(messages);
+                            objectToClient.reset();
                         }
-                        else if(object instanceof Double)
-                        {
-
+                        System.out.println(curr);
+                    } else if (object instanceof String) {
+                        String curr = (String) object;
+                        if (!nameTaken(curr)) {
+                            client = new Client(curr);
+                            clients.add(client);
+                            objectToClient.writeObject(client);
+                        } else {
+                            objectToClient.writeObject(null);
                         }
-                        else if(object instanceof String)
-                        {
-
-                        }
+                        objectToClient.reset();
                     }
-
-                    catch(ClassNotFoundException e){}
-
+                } catch (ClassNotFoundException e) {
+                    out.println("Invalid object from Client was received.");
                 }
             }
             catch(IOException e) {
-                /*
-                if(userCache.indexOf(user) != -1)
-                {
-                }
-                else
-                */
-                System.out.println("Connection lost with a client on " + fixDate("" + new Date()));
+                clients.remove(client);
+                out.println("Connection lost with <Client: "+client.getName()+"> on " + fixDate("" + new Date()));
             }
 
         }

@@ -1,5 +1,7 @@
 /**
  * Created by Kai W. Fleischman on 2/24/2017.
+ * This program is the client side of computer
+ * chess.
  */
 import java.awt.*;
 import java.util.*;
@@ -17,51 +19,50 @@ public class ChessClient
         tester.addWindowListener(new WindowAdapter()
         {public void windowClosing(WindowEvent e)
         {System.exit(0);}});
-        tester.setSize(1440,900);
+        tester.setSize(1366,728);
         tester.setVisible(true);
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            public void run() {
-                System.out.println("In shutdown hook");
-            }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("In shutdown hook");
         }, "Shutdown-thread"));
     }
 }
 
 class ClientTestServer extends Frame implements MouseListener, MouseMotionListener, KeyListener
 {
-    private DataOutputStream toServer;
-    private DataInputStream fromServer;
+    private ArrayList<Message> messageCache;
+    private Rectangle chatToggle, chatArea, newGame;
+    private boolean chatVisible;
+    private Client local;
     private ObjectOutputStream objectToServer;
     private ObjectInputStream objectFromServer;
-    private Socket socket;
     private String localInput;
     private FontMetrics metrics;
     private Image backbuffer;
     private Graphics backg;
-    private Font Default;
-    private Color transparentGray, babyBlue, lightGrey, grey;
-    private int getWidth, getHeight, currentWidth, borderLeft, borderRight, borderTop, borderBottom,
-            inputLength, messageStartIndex, textBoxYValue, charactersPerLine, cycle, spacing;
-    private boolean wordEntered,firstGraphicsWindow,userEstablished,validUsername,usernameTaken,inAChatRoom,muted;
-    protected Image cat;
-    private Font bigFont,mediumFont,smallFont;
-    private boolean[] errorTypes;
-    ArrayList<String> Lines;
-    protected Rectangle chatRoomOneButton, chatRoomTwoButton, chatRoomThreeButton, backButton;
+    private Color transparentGray, babyBlue, lightGrey, lightGreyT;
+    private int getWidth, getHeight, borderLeft, borderRight, borderTop, borderBottom, chatLeft,
+            messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart;
+    private boolean firstGraphicsWindow, chatting;
+    private Image cat, chessBackground;
+    private Font bigFont,mediumFont, Default;
+    private ArrayList<String> Lines;
     private final char[] typableCharacters = {'a','b','c','d','e','f','g','h','i','j','k','l',
             'm','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H',
             'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3',
             '4','5','6','7','8','9','!','@','#','$','%','^','&','*','(',')','_','-','+','=','{','[',
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
-
-    private final String[] invalidWords = new String[]{"test"};
-
-    public void init()
+    private void init()
     {
-        try{cat = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));}catch(IOException e){}
+        chatLeft = 345;
+        boxSize = 23;
+        messageCache = new ArrayList<>();
+        try {cat = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
+            chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\Pictures\\chessBackground.jpg"));
+        } catch(IOException e) {System.out.println("Could not load images.");}
+        chatVisible = true;
+        chatting = false;
         bigFont = new Font(Font.MONOSPACED, Font.BOLD, 36);
         mediumFont = new Font(Font.MONOSPACED, Font.BOLD, 20);
-        smallFont = new Font(Font.MONOSPACED, Font.BOLD, 12);
         Default = new Font("Monospaced",Font.PLAIN,40);
         localInput = "";
         addMouseListener(this);
@@ -69,117 +70,94 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         addKeyListener(this);
         transparentGray = new Color(50,50,50,150);
         babyBlue = new Color(0,191,255);
-        wordEntered = false;
-        currentWidth = 0;
-        getWidth = 600;
-        getHeight = 300;
         firstGraphicsWindow = true;
-        userEstablished = false;
         borderLeft = 8;
         borderRight = 9;
         borderTop = 31;
         borderBottom = 9;
-        inputLength = 14;
-        validUsername = false;
-        usernameTaken = false;
-        lightGrey = new Color(188,184,184,200);
-        grey = new Color(215,215,215);
+        lightGrey = new Color(188,184,184);
+        lightGreyT = new Color(188,184,184,200);
         messageStartIndex = 0;
         textBoxYValue = 0;
-        Lines = new ArrayList<String>();
-        cycle = 0;
-        muted = false;
-        spacing = (getHeight-borderTop-borderBottom-(50*3)-40)/4;
-
-        chatRoomOneButton = new Rectangle((getWidth/2-borderLeft)-200,borderTop+39+spacing,400,50);
-        chatRoomTwoButton = new Rectangle((getWidth/2-borderLeft)-200,borderTop+89+2*spacing,400,50);
-        chatRoomThreeButton = new Rectangle((getWidth/2-borderLeft)-200,borderTop+139+3*spacing,400,50);
-        backButton = new Rectangle(borderLeft,borderTop,120,30);
-
-        inAChatRoom = false;
-
-        //errorTypes: 0 = no connection, 1 = unchecked Problem, 2 = unsupported version
-        //3 = connection lost, 4 = banned, 5 = unknown error
-        errorTypes = new boolean[] {false,false,false,false,false,false};
-
+        Lines = new ArrayList<>();
     }
 
-    public ClientTestServer() throws IOException
+    ClientTestServer() throws IOException
     {
+        local = null;
         Scanner user = new Scanner(System.in);
-        System.out.print("IP address of your server: ");
-        String ip = user.nextLine();
-        init();
-        try
+        String ip;
+        int maxNameLength = 14;
+        boolean connected = false;
+        while(!connected)
         {
-            socket = new Socket(InetAddress.getByName(ip), 8000);
-            fromServer = new DataInputStream(socket.getInputStream());
-            toServer = new DataOutputStream(socket.getOutputStream());
-            objectFromServer = new ObjectInputStream(socket.getInputStream());
-            objectToServer = new ObjectOutputStream(socket.getOutputStream());
-        }catch(IOException err)	{ errorTypes[0] = true; }
+            connected = true;
+            System.out.print("IP address of your server: ");
+            ip = user.nextLine();
+            if(ip.equals("quit"))
+                System.exit(0);
+            System.out.println("Attempting connection...");
+            try
+            {
+                Socket socket = new Socket(InetAddress.getByName(ip), 8000);
+                objectFromServer = new ObjectInputStream(socket.getInputStream());
+                objectToServer = new ObjectOutputStream(socket.getOutputStream());
+            } catch(Exception err) {
+                System.out.println("Bad connection or bad IP. Try again or abort (\"quit\").\n");
+                connected = false;
+            }
+        }
+        System.out.println("Connected!");
+
+        boolean validName = false;
+        String name;
+        while(!validName)
+        {
+            validName = true;
+            System.out.print("\nDeclare a unique username: ");
+            name = user.nextLine();
+            objectToServer.writeObject(name);
+            try{Object obj = objectFromServer.readObject();
+                if(obj == null || name.length()>maxNameLength || name.length()==0)
+                {
+                    System.out.println("Something went wrong.");
+                    validName = false;
+                }
+                local = (Client)obj;}
+            catch(Exception e)
+            {
+                System.out.println("Something went wrong.");
+                validName = false;
+            }
+        }
+        init();
 
     }
 
     public void paint(Graphics g)
     {
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            public void run() {
-                try{
-
-                }catch(Exception e){}
-            }
-        }, "Shutdown-thread"));
-
         if( firstGraphicsWindow )
         {
-            //create the backbuffer image that will later be swapped to the screen
+            getWidth = getWidth();
+            getHeight = getHeight();
             backbuffer = createImage(getWidth, getHeight);
-            //get the backbuffer's graphics (canvas) so that we can draw on it
             backg = backbuffer.getGraphics();
-
             listenForEvents task = new listenForEvents();
             new Thread(task).start();
-
-
-            //////////////////////////////////////////
-            //     ArrayList of colorful Lines      //
-            //////////////////////////////////////////	
-
-
-            int ranX;
-            int ranY;
-            int ranXLen;
-            int ranYLen;
-            int ranColor;
-            Color PURPLE = new Color(128,0,128);
-
-            Color color;
-            for(int x = 0; x < 1000; x++)
-            {
-                ranColor = (int) (Math.random() * 255);
-                ranX = borderLeft;
-                ranY = getHeight-borderBottom;
-                ranXLen = (int) (Math.random() * getWidth);
-                ranYLen = (int) (Math.random() * getHeight);
-
-                color = new Color(ranColor,255,255);
-
+            try{
+                objectToServer.writeObject(2);
+                objectToServer.reset();
             }
-
+            catch(Exception e)
+            {
+                System.out.println("Something went wrong.");
+            }
+            chatToggle = new Rectangle(getWidth-(chatLeft+30),borderTop+39,30,getHeight);
+            chatArea = new Rectangle(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
+            newGame = new Rectangle(getWidth-125,borderTop,125,38);
+            messStart = getWidth-chatLeft+5;
         }
-        g.setFont(Default);
-        metrics = g.getFontMetrics();
-        charactersPerLine = (getWidth-borderLeft*2)/metrics.stringWidth("A");
-        //Rectangle r = Frame.getBounds();
-        getWidth = getWidth();
-        getHeight = getHeight();
-
-        chatRoomOneButton.setBounds((getWidth/2-borderLeft)-200,borderTop+39+spacing,400,50);
-        chatRoomTwoButton.setBounds((getWidth/2-borderLeft)-200,borderTop+89+2*spacing,400,50);
-        chatRoomThreeButton.setBounds((getWidth/2-borderLeft)-200,borderTop+139+3*spacing,400,50);
-        backButton.setBounds(borderLeft,borderTop,120,30);
-
+        g.setFont(mediumFont);
         firstGraphicsWindow = false;
         update(g);
     }
@@ -187,203 +165,164 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     public void update(Graphics g)
     {
         backg.setColor(Color.WHITE);
-
         backg.fillRect(0,0,getWidth,getHeight);
-        if(errorTypes[0])
-            errorPage(backg,"We couldn't connect to the server!");
-        else if(errorTypes[3])
-            errorPage(backg,"Your connection with our server was lost!");
-        else if(errorTypes[5])
-            errorPage(backg,"An unexpected error occured! Please restart Chapp.");
-        else if(!userEstablished)
-        {
-            usernamePage(backg);
-        }
-
-        else if(!inAChatRoom && userEstablished)
-        {
-            backg.drawImage(cat,0,0,getWidth,getHeight,this);
-            homePage(backg);
-        }
-        else
-        {
-            backg.drawImage(cat,0,0,getWidth,getHeight,this);
-            entryBox(backg);
-            drawMessages(backg);
-        }
-
+        backg.drawImage(chessBackground,0,0,getWidth,getHeight,this);
+        chatArea(backg);
+        homePage(backg);
         g.drawImage(backbuffer, 0, 0, this);
         repaint();
-
     }
 
-    public int validChar(char a)
+    private int validChar(char a)
     {
-
         for( char check : typableCharacters )
             if( a == check )
                 return 0;
         return -1;
+    }
 
+    private void chatArea(Graphics g)
+    {
+        if(chatVisible)
+        {
+            int locX = 30+chatLeft;
+            g.setColor(lightGreyT);
+            g.fillRoundRect(getWidth-locX,borderTop+39,locX,getHeight-borderTop-38-borderBottom-1,2,2);
+            g.setColor(Color.black);
+            g.drawRoundRect(getWidth-locX,borderTop+39,locX-chatLeft,getHeight-borderTop-38-borderBottom-1,2,2);
+            g.setFont(mediumFont);
+            g.setColor(Color.WHITE);
+            g.drawString(">>",(getWidth-locX)+3,borderTop+362);
+            g.setColor(Color.black);
+            g.drawRect(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight-borderTop-38-borderBottom-1);
+            entryBox(g);
+            drawMessages(g);
+        }
+        else
+        {
+            int locX = 30;
+            g.setColor(lightGreyT);
+            g.fillRoundRect(getWidth-(locX+borderRight),borderTop+39,locX,getHeight-borderTop-38-borderBottom-1,2,2);
+            g.setColor(Color.black);
+            g.drawRoundRect(getWidth-(locX+borderRight),borderTop+39,locX,getHeight-borderTop-38-borderBottom-1,2,2);
+            g.setFont(mediumFont);
+            g.setColor(Color.WHITE);
+            g.drawString("<<",getWidth-(locX+borderRight)+3,borderTop+362);
+        }
+    }
+
+    private void entryBox(Graphics g) {
+        Lines.clear();
+        g.setFont(mediumFont);
+        metrics = g.getFontMetrics();
+        charactersPerLine = (chatLeft - borderRight) / metrics.stringWidth("A");
+        charactersPerLine--;
+        if (localInput.length() <= charactersPerLine) {
+            textBoxYValue = getHeight - borderBottom - boxSize;
+            g.setColor(transparentGray);
+            g.fillRect(getWidth-chatLeft, textBoxYValue, chatLeft, boxSize);
+            g.fillRect(getWidth-chatLeft, textBoxYValue, chatLeft, boxSize);
+            g.setColor(Color.BLACK);
+            g.drawRect(getWidth-chatLeft, textBoxYValue, chatLeft, boxSize);
+            g.setColor(Color.WHITE);
+            g.drawString(localInput, messStart, getHeight - 15);
+            textBoxYValue = getHeight-borderBottom-boxSize*2;
+        } else {
+            for (int m = 0; m < localInput.length(); m += charactersPerLine) {
+                if (m + charactersPerLine >= localInput.length() && m!=0)
+                    Lines.add(localInput.substring(m, localInput.length()));
+                else
+                    Lines.add(localInput.substring(m, m + charactersPerLine));
+            }
+            longMessage(g, (getHeight - borderBottom - (boxSize * Lines.size())), true);
+            textBoxYValue = (getHeight - borderBottom - (boxSize * (Lines.size()+1)));
+        }
     }
 
     ////////////////////////////////////////////////
     //             Essential Methods              //
     ////////////////////////////////////////////////
 
-
-
-
-    public void entryBox(Graphics g)
-    {
-        charactersPerLine = (getWidth-borderLeft*2)/metrics.stringWidth("A");
-
-        if(localInput.length() < charactersPerLine)
-        {
-            textBoxYValue = getHeight-borderBottom-42;
-            g.setColor(transparentGray);
-            g.fillRect(borderLeft,textBoxYValue,getWidth-17,42);
-            g.setColor(Color.BLACK);
-            g.drawRect(borderLeft,textBoxYValue,getWidth-17,42);
-            g.setColor(Color.WHITE);
-            g.drawString(localInput,10,getHeight-20);
-            textBoxYValue = getHeight-borderBottom-84;
-        }
-        else
-        {
-            for(int m = 0; m < localInput.length(); m+=charactersPerLine)
-            {
-                if(m+charactersPerLine >= localInput.length())
-                    Lines.add(localInput.substring(m,localInput.length()));
-                else
-                    Lines.add(localInput.substring(m,m+charactersPerLine));
-            }
-            textBoxYValue = longMessage(g,charactersPerLine,(getHeight-borderBottom-(42*Lines.size())),true,false);
-        }
-
-    }
-
-    public boolean checkUsername()
-    {
-
-        for( String a : invalidWords )
-        {
-            localInput = " "+localInput;
-            if(localInput.toLowerCase().indexOf(a) != -1)
-            {
-                localInput = "";
-                return false;
-            }
-        }
-
-        localInput = localInput.trim();
-    	/*if(localInput.length()==inputLength)
-    	{
-    		//g.drawString("Character Limit Reached",100,200);
-    		validUsername = false;
-    	}*/
-    	
-    	/*if(localInput.length()<=0)
-    	{
-    		g.drawString("Username Too Short",100,300);
-    		validUsername = false;
-    	}*/
-        return true;
-
-
-    }
-
-    public void drawMessages(Graphics g)
+    private void drawMessages(Graphics g)
     {
         Lines.clear();
-        String current = "";
-        g.setFont(Default);
+        String current;
+        g.setFont(mediumFont);
         metrics = g.getFontMetrics();
-        charactersPerLine = (getWidth-borderLeft*2)/metrics.stringWidth("A");
         int startPoint = textBoxYValue;
+        if(messageCache.size() > 0) {
+            for (int x = messageStartIndex; x < messageCache.size(); x++) {
+                current = messageCache.get(x).getMessage();
+                g.setFont(mediumFont);
+
+                if (messageCache.get(x).getSender().equals(local.getName())) {
+                    current = "<You> " + current;
+                    g.setColor(Color.WHITE);
+                    if (current.length() > charactersPerLine) {
+
+                        for (int m = 0; m < current.length(); m += charactersPerLine) {
+                            if (m + charactersPerLine >= current.length() && m!=0)
+                                Lines.add(current.substring(m, current.length()));
+                            else
+                                Lines.add(current.substring(m, m + charactersPerLine));
+                        }
 
 
-        g.setColor(Color.BLACK);
-        g.fillRect(borderLeft,borderTop,100,30);
-        g.setColor(Color.WHITE);
-        g.drawString("Back",borderLeft+2,borderTop+28);
+                        startPoint = longMessage(g, (startPoint + boxSize - (Lines.size() * boxSize)), true);
+
+                    } else {
+                        g.setColor(transparentGray);
+                        g.fillRect(getWidth-chatLeft, startPoint, chatLeft, boxSize);
+                        g.setColor(Color.BLACK);
+                        g.drawRect(getWidth-chatLeft, startPoint, chatLeft, boxSize);
+                        g.setColor(Color.WHITE);
+                        g.drawString("<You> " + messageCache.get(x).getMessage(), messStart, startPoint + 17);
+                        startPoint -= boxSize;
+                    }
+
+                } else {
+                    current = "<" + messageCache.get(x).getSender() + "> " + current;
+                    if (current.length() > charactersPerLine) {
+                        for (int m = 0; m < current.length(); m += charactersPerLine) {
+                            if (m + charactersPerLine >= current.length() && m!=0)
+                                Lines.add(current.substring(m, current.length()));
+                            else
+                                Lines.add(current.substring(m, m + charactersPerLine));
+                        }
+                        startPoint = longMessage(g, (startPoint + boxSize - (Lines.size() * boxSize)), false);
+                    } else {
+                        g.setColor(transparentGray);
+                        g.fillRect(getWidth-chatLeft, startPoint, chatLeft, boxSize);
+                        g.setColor(Color.BLACK);
+                        g.drawRect(getWidth-chatLeft, startPoint, chatLeft, boxSize);
+                        g.setColor(babyBlue);
+                        g.drawString(current, messStart, startPoint + 17);
+                        startPoint -= boxSize;
+                    }
+                }
+                Lines.clear();
+            }
+        }
     }
 
-    public int longMessage(Graphics g, int charPerLine, int startY, boolean thisUser, boolean admin)
+    private int longMessage(Graphics g, int startY, boolean thisUser)
     {
         int startPoint = startY;
-
-        //System.out.println(admin);
-        //System.out.println(false);
-
-        g.setFont(Default);
+        g.setFont(mediumFont);
+        metrics = g.getFontMetrics();
         g.setColor(transparentGray);
-        g.fillRect(borderLeft,startPoint,getWidth-17,Lines.size()*42);
-        g.drawRect(borderLeft,startPoint,getWidth-17,Lines.size()*42);
-
-        for( int x = 0; x < Lines.size(); x++ )
-        {
-            if(thisUser)
+        g.fillRect(getWidth-chatLeft, startPoint, chatLeft, Lines.size()*boxSize);
+        g.setColor(Color.BLACK);
+        g.drawRect(getWidth-chatLeft, startPoint, chatLeft, Lines.size()*boxSize);
+        for (String Line : Lines) {
+            if (thisUser)
                 g.setColor(Color.WHITE);
-            else if(Lines.get(0).substring(0,1).equals("*"))
-                g.setColor(grey);
-            else if(admin)
-                g.setColor(new Color(255,215,0));
             else
-                g.setColor(Color.GREEN);
-            g.drawString(Lines.get(x),10,startPoint+31);
-            startPoint += 42;
+                g.setColor(babyBlue);
+            g.drawString(Line, messStart, startPoint + 17);
+            startPoint += boxSize;
         }
-
-        return startY-42;
-
-    }
-
-    public void correctMessage()
-    {
-        localInput = " " + localInput + " ";
-        String temp = localInput.toLowerCase();
-        System.out.println(localInput);
-        //String[] words = localInput.split(" ");
-        //for( int x = 0; x < words.length; x++ )
-        //{
-        for( String e : invalidWords )
-        {
-            if(temp.indexOf(e) != -1)
-            {
-                if(temp.indexOf(e) != 0)
-                {
-                    localInput = localInput.substring(0,temp.indexOf(e)) + toAsterics(localInput.substring(localInput.indexOf(e),localInput.indexOf(e)+e.length()).trim()) +
-                            localInput.substring(localInput.indexOf(e)+e.length(),localInput.length());
-                }
-                else
-                {
-                    localInput = toAsterics(localInput.substring(temp.indexOf(e),temp.indexOf(e)+e.length()).trim()) +
-                            localInput.substring(temp.indexOf(e)+e.length(),temp.length());
-                }
-            }
-            System.out.println(localInput);
-        }
-        //}
-
-        //for(int x = 0; x < words.length; x++)
-        //{
-        //temp = temp + words[x] + " ";
-        //}
-        //temp = temp.trim();
-        System.out.println(localInput);
-        localInput = localInput.trim();
-
-    }
-
-    public String toAsterics(String a)
-    {
-
-        String toSend = "";
-        for(int x = 0; x < a.length(); x++)
-            toSend = toSend + "*";
-        return toSend;
-
+        return startY-boxSize;
     }
 
     ////////////////////////////////////////////////
@@ -391,166 +330,27 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     ////////////////////////////////////////////////
 
 
-    public void homePage(Graphics g)
+    private void homePage(Graphics g)
     {
+        metrics = g.getFontMetrics();
         g.setColor(lightGrey);
         g.fillRect(borderLeft,borderTop-1,getWidth-borderLeft*2,40);
         g.setFont(mediumFont);
         g.setColor(Color.WHITE);
+        g.drawString(timeMessage()+", "+local.getName(),15+borderLeft,30+borderTop);
+        int currentWidth = metrics.stringWidth("New Game");
+        g.drawString("New Game",getWidth-(borderRight+15+ currentWidth),30+borderTop);
+        g.setColor(babyBlue);
+        currentWidth = metrics.stringWidth("+ New Game");
+        g.drawString("+",getWidth-borderRight-15- currentWidth,30+borderTop);
+        g.setColor(Color.WHITE);
         g.setFont(bigFont);
         metrics = g.getFontMetrics();
-        currentWidth = metrics.stringWidth("Chapp")/2;
-        g.drawString("Chapp",borderLeft+getWidth/2-currentWidth,borderTop+30);
-
-        spacing = (getHeight-borderTop-borderBottom-(50*3)-40)/4;
-        //ChatRoom 1
-        metrics = g.getFontMetrics();
-        currentWidth = metrics.stringWidth("Chat Room One")/2;
-        g.setColor(lightGrey);
-        g.fillRoundRect((getWidth/2-borderLeft)-200,borderTop+39+spacing,400,50,10,10);
-        g.setColor(babyBlue);
-        g.drawString("Chat Room One",(getWidth/2-borderLeft)-currentWidth,borderTop+39+spacing+35);
-
-        //ChatRoom 2
-        metrics = g.getFontMetrics();
-        currentWidth = metrics.stringWidth("Chat Room Two")/2;
-        g.setColor(lightGrey);
-        g.fillRoundRect((getWidth/2-borderLeft)-200,borderTop+89+2*spacing,400,50,10,10);
-        g.setColor(babyBlue);
-        g.drawString("Chat Room Two",(getWidth/2-borderLeft)-currentWidth,borderTop+89+2*spacing+35);
-        //ChatRoom 3
-        metrics = g.getFontMetrics();
-        currentWidth = metrics.stringWidth("Chat Room Three")/2;
-        g.setColor(lightGrey);
-        g.fillRoundRect((getWidth/2-borderLeft)-200,borderTop+139+3*spacing,400,50,10,10);
-        g.setColor(babyBlue);
-        g.drawString("Chat Room Three",(getWidth/2-borderLeft)-currentWidth,borderTop+139+3*spacing+35);
+        currentWidth = metrics.stringWidth("Chess")/2;
+        g.drawString("Chess",borderLeft+getWidth/2- currentWidth,borderTop+30);
     }
 
-    public void usernamePage(Graphics g)
-    {
-
-        int ranX;
-
-
-
-    }
-
-    public void determineError(String e)
-    {
-        switch(e)
-        {
-            case "No Connection": 													errorTypes[0] = true; break;
-            case "Unchecked Problem Occurred; We will fix it right away": 			errorTypes[1] = true; break;
-            case "Your version may not support some functionality; contact Kai": 	errorTypes[2] = true; break;
-            case "Connection Lost - the server was closed": 						errorTypes[3] = true; break;
-            case "You were expunged for inappropriate behavior": 					errorTypes[4] = true; break;
-            case "Something went wrong - restart Chapp": 							errorTypes[5] = true; break;
-            default: /*Nothing*/;
-        }
-    }
-
-    public void errorPage(Graphics g, String Message)
-    {
-        g.setColor(Color.BLACK);
-        g.fillRect(0,0,getWidth,getHeight);
-        int y = getHeight-borderTop-borderBottom;
-        int x = getWidth-borderLeft-borderRight;
-        int radiX = 0;
-        int radiY = 0;
-        int Try = 100;
-        while(Try > 10)
-        {
-            if(x%Try == 0)
-            {
-                radiX = x/Try;
-            }
-
-            Try--;
-        }
-        Try = 100;
-        while(Try > 6)
-        {
-            if(y%Try == 0)
-            {
-                radiY = y/Try;
-            }
-            Try--;
-        }
-        if(radiX == 0)
-            radiX = x/10;
-        if(radiY == 0)
-            radiY = y/6;
-        int eex, ey, ez;
-        for(int r = borderLeft; r <= x+radiX; r += radiX)
-        {
-            for(int l = borderTop; l <= y+radiY; l += radiY)
-            {
-                if((l-borderTop)/radiY == 4 && (r-borderLeft)/radiX == 1)
-                {
-
-                }
-                else
-                {
-                    eex = (int) (Math.random() * 256);
-                    ey = (int) (Math.random() * 256);
-                    ez = (int) (Math.random() * 256);
-                    backg.setColor(new Color(eex,ey,ez));
-                    g.fillRect(r,l,radiX,radiY);
-                }
-
-            }
-        }
-
-        g.setColor(transparentGray);
-        g.fillRect(0,0,getWidth,getHeight);
-
-        g.setFont(Default);
-        DrawMessage(g,"Something's out of place...",Message);
-    }
-
-    public void DrawMessage(Graphics g, String one, String two)
-    {
-
-        metrics = g.getFontMetrics();
-        int limit = (getWidth-borderLeft-borderRight-100);
-        int Space = (getHeight-borderTop-borderBottom-50-((limit)/metrics.stringWidth(two))*50)/2;
-
-        int lines = 1 + (1+(metrics.stringWidth(two)/limit));
-        if(metrics.stringWidth(two)>metrics.stringWidth(one))
-        {
-            if(metrics.stringWidth(two)>(limit))
-                currentWidth = limit;
-            else
-                currentWidth = metrics.stringWidth(two);
-        }
-        else
-            currentWidth = metrics.stringWidth(one);
-
-        g.setColor(lightGrey);
-        g.fillRoundRect((getWidth/2)-5-currentWidth/2,borderTop+Space,currentWidth+10,50*lines,10,10);
-        g.setColor(Color.WHITE);
-        g.drawString(one,(getWidth/2)-metrics.stringWidth(one)/2,borderTop+Space+35);
-        int factor = 1;
-        int charAllowed = limit/metrics.stringWidth("W");
-        for(int x = 0; x < two.length(); x+= (charAllowed))
-        {
-            if(two.length() <= x+charAllowed)
-            {
-                //System.out.println("X: "+x+", Limit: "+limit+", Length: "+two.length());
-                g.drawString(two.substring(x),(getWidth/2)-metrics.stringWidth(two.substring(x))/2,borderTop+Space+35+50*factor);
-
-            }
-
-            else
-                g.drawString(two.substring(x,charAllowed),(getWidth/2)-metrics.stringWidth(two.substring(x,charAllowed))/2,borderTop+Space+35+50*factor);
-            factor++;
-        }
-
-
-    }
-
-    public String timeMessage()
+    private String timeMessage()
     {
         String timeOfDay = ""+ new Date();
         timeOfDay = timeOfDay.substring(timeOfDay.indexOf(":") -2, timeOfDay.indexOf(":"));
@@ -574,76 +374,38 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         return timeOfDay;
     }
 
-    public boolean inArea( int x, int y, Rectangle f)
-    {
-        if(( x >= f.getMinX() && x <= f.getMaxX() )
-                && ( y >= f.getMinY() && y <= f.getMaxY()))
-            return true;
-        else
-            return false;
-    }
-
     ////////////////////////////////////////////////
     //            Java Event Methods              //
     ////////////////////////////////////////////////
 
     public void mouseClicked(MouseEvent e)
     {
-
         int pressX = e.getX();
         int pressY = e.getY();
-
-        if(inArea(pressX,pressY,chatRoomOneButton) && userEstablished && inAChatRoom == false)
+        /*
+        System.out.println("Click detected.");
+        System.out.println("Press X: "+pressX+" Press Y: "+pressY);
+        System.out.println("X: "+chatToggle.getX()+" Y: "+chatToggle.getY()+" Width: "+chatToggle.getWidth()+" Height"+chatToggle.getHeight());
+        */
+        if(chatToggle.contains(pressX,pressY))
         {
-            inAChatRoom = true;
-
-            try{objectToServer.writeObject("ChatRoom1");}
-            catch(UnknownHostException ex){errorTypes[5] = true;}
-            catch(IOException ex){errorTypes[5] = true;}
-            catch(NullPointerException ex){ errorTypes[5] = true; }
-            //catch(ClassNotFoundException ex){ localInput = "Error"; }
-
-
+            //System.out.println("Contained.");
+            if(chatVisible)
+            {
+                chatToggle.setBounds(getWidth-30,borderTop+39,30,getHeight);
+                chatArea.setBounds(0,0,0,0);
+                chatting = false;
+            }
+            else
+            {
+                chatToggle.setBounds(getWidth-chatLeft-30,borderTop+39,30,getHeight);
+                chatArea.setBounds(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
+                chatting = true;
+            }
+            chatVisible = !chatVisible;
         }
-        else if(inArea(pressX,pressY,chatRoomTwoButton) && userEstablished && inAChatRoom == false)
-        {
-            inAChatRoom = true;
-
-            try{objectToServer.writeObject("ChatRoom2");}
-            catch(UnknownHostException ex){errorTypes[5] = true;}
-            catch(IOException ex){errorTypes[5] = true;}
-            catch(NullPointerException ex){ errorTypes[5] = true; }
-            //catch(ClassNotFoundException ex){ localInput = "Error"; }
-
-
-        }
-
-        else if(inArea(pressX,pressY,chatRoomThreeButton) && userEstablished && inAChatRoom == false)
-        {
-            inAChatRoom = true;
-
-            try{objectToServer.writeObject("ChatRoom3");}
-            catch(UnknownHostException ex){errorTypes[5] = true;}
-            catch(IOException ex){errorTypes[5] = true;}
-            catch(NullPointerException ex){ errorTypes[5] = true; }
-            //catch(ClassNotFoundException ex){ localInput = "Error"; }
-
-
-        }
-
-        else if(inArea(pressX,pressY,backButton) && userEstablished && inAChatRoom == true)
-        {
-            inAChatRoom = false;
-
-            try{objectToServer.writeObject("Left");}
-            catch(UnknownHostException ex){errorTypes[5] = true;}
-            catch(IOException ex){errorTypes[5] = true;}
-            catch(NullPointerException ex){ errorTypes[5] = true; }
-            //catch(ClassNotFoundException ex){ localInput = "Error"; }
-
-
-        }
-
+        else chatting = chatArea.contains(pressX, pressY);
+        repaint();
     }
 
 
@@ -657,84 +419,53 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     public void keyTyped(KeyEvent evt)      { }
     public void keyPressed(KeyEvent evt)
     {
-
-        if(evt.getKeyCode() == KeyEvent.VK_BACK_SPACE){
-            if(localInput.length() != 0){
-                localInput = localInput.substring(0,localInput.length()-1);
+        if(chatting){
+            if(evt.getKeyCode() == KeyEvent.VK_BACK_SPACE){
+                if(localInput.length() != 0)
+                    localInput = localInput.substring(0,localInput.length()-1);
+            }
+            else if(evt.getKeyCode() == KeyEvent.VK_ENTER && localInput.length()>0)
+            {
+                try{
+                    objectToServer.writeObject(new Message(localInput,local));
+                    objectToServer.reset();
+                } catch(IOException e)
+                {
+                    System.out.println("Could not send Message.");
+                }
+                localInput = "";
+            }
+            else if(evt.getKeyCode() == KeyEvent.VK_UP)
+            {
+                if(messageStartIndex<messageCache.size()-1)
+                    messageStartIndex++;
+            }
+            else if(evt.getKeyCode() == KeyEvent.VK_DOWN)
+            {
+                if(messageStartIndex>0)
+                    messageStartIndex--;
+            }
+            else{
+                if( validChar(evt.getKeyChar()) != -1 )
+                    localInput = localInput + evt.getKeyChar();
             }
         }
-
-        else if(evt.getKeyCode() == KeyEvent.VK_ENTER){
-            Object object;
-            //System.out.println(userEstablished);
-            if(!userEstablished&&checkUsername()&&!localInput.equalsIgnoreCase("admin"))
-            {}
-
-
-            else if(userEstablished )
-                try{
-
-                    //correctMessage();
-                    if(localInput.equals("/exit"))
-                    {
-                        inAChatRoom = false;
-                        try{objectToServer.writeObject("Left");}
-                        catch(UnknownHostException ex){errorTypes[5] = true;}
-                        catch(IOException ex){errorTypes[5] = true;}
-                        catch(NullPointerException ex){ errorTypes[5] = true; }
-                        //catch(ClassNotFoundException ex){ localInput = "Error"; }
-
-
-                    }
-                    else if(!muted)
-                    {}
-                    localInput = "";
-                }
-
-
-                catch(NullPointerException e){ errorTypes[5] = true; }
-
-
-        }
-
-        else if(evt.getKeyCode() == KeyEvent.VK_UP)
-        {
-
-
-        }
-        else if(evt.getKeyCode() == KeyEvent.VK_DOWN)
-        {
-            if( messageStartIndex > 0 && userEstablished )
-                messageStartIndex--;
-        }
-
-        else{
-            if( validChar(evt.getKeyChar()) != -1 && localInput.length() < inputLength )
-                localInput = localInput + evt.getKeyChar();
-        }
-
         repaint();
-
     }
 
-    class listenForEvents implements Runnable
+    private class listenForEvents implements Runnable
     {
-
-        public listenForEvents() { }
-
+        listenForEvents() { }
         public void run()
         {
-            System.out.print("");
             while(true)
             {
-                System.out.print("");
-                if(userEstablished)
-                {
-
-
-                }
-
+                try{
+                    Object object = objectFromServer.readObject();
+                    messageCache = (ArrayList<Message>) object;
+                }catch(Exception e){System.out.println("A fatal error occurred."); break;}
             }
+            System.exit(1);
         }
     }
 }
