@@ -8,7 +8,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -811,7 +810,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488233530344</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Added menus.">
+      <created>1488320076421</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1488320076421</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -866,7 +872,8 @@
     <MESSAGE value="Java 3D Graphics Project for 2x2x2 Cube rendering." />
     <MESSAGE value="Minor changes to clean up the code." />
     <MESSAGE value="Minor changes to the code." />
-    <option name="LAST_COMMIT_MESSAGE" value="Minor changes to the code." />
+    <MESSAGE value="Added menus." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added menus." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
