@@ -45,7 +45,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
     private boolean firstGraphicsWindow, chatting;
-    private Image cat, chessBackground;
+    private Image chessBackground;
     private Font bigFont,mediumFont, Default;
     private ArrayList<String> Lines;
     private final char[] typableCharacters = {'a','b','c','d','e','f','g','h','i','j','k','l',
@@ -61,8 +61,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         gameButtonHeight = 100;
         buttonStartHeight = borderTop+39;
         messageCache = new ArrayList<>();
-        try {//cat = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
-            chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
+        try {/*cat*/chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
+            //chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
         } catch(IOException e) {System.out.println("Could not load images.");}
         chatVisible = true;
         chatting = false;
@@ -248,14 +248,29 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
     private void drawMatches(Graphics g)
     {
+        g.setFont(Default);
+        metrics = g.getFontMetrics();
         buttonStartHeight = borderTop+39;
+        int vis = chatVisible ? 1 : 0;
+        int nVis = !chatVisible ? 1 : 0;
+        int curr = (getWidth-chatLeft*vis-borderRight*nVis-(30+borderLeft)) / metrics.stringWidth("A");
+        String display;
         for(Match a : matchCache)
         {
+            if(a.getPlayerTwo()==null)
+                display = a.getPlayerOne().getName() + " vs. ???";
+            else
+                display = a.getPlayerOne().getName() + " vs. " + a.getPlayerTwo().getName();
+            curr = metrics.stringWidth(display);
             g.setColor(transparentGray);
-            g.fillRect(borderLeft,buttonStartHeight,chatLeft-borderLeft,gameButtonHeight);
+            g.fillRect(borderLeft,buttonStartHeight,getWidth-chatLeft*vis-borderRight*nVis-(30+borderLeft),gameButtonHeight);
             g.setColor(Color.BLACK);
-            g.drawRect(borderLeft,buttonStartHeight,chatLeft-borderLeft,gameButtonHeight);
+            g.drawRect(borderLeft,buttonStartHeight,getWidth-chatLeft*vis-borderRight*nVis-(30+borderLeft),gameButtonHeight);
+            g.setColor(Color.WHITE);
+            g.drawString(display,((getWidth-chatLeft*vis-borderRight*nVis-(30+borderLeft)-curr)/2)+borderLeft,buttonStartHeight+70);
+            buttonStartHeight+=gameButtonHeight;
         }
+        g.setFont(mediumFont);
     }
 
     ////////////////////////////////////////////////
@@ -351,6 +366,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
     private void homePage(Graphics g)
     {
+        drawMatches(g);
         metrics = g.getFontMetrics();
         g.setColor(lightGrey);
         g.fillRect(borderLeft,borderTop-1,getWidth-borderLeft*2,40);

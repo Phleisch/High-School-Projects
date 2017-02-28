@@ -228,6 +228,7 @@ public class ChessServer
             }
             catch(IOException e) {
                 clients.remove(client);
+                tasks.remove(this);
                 out.println("Connection lost with <Client: "+client.getName()+"> on " + fixDate("" + new Date()));
             }
 
