@@ -30,9 +30,10 @@ public class ChessClient
 class ClientTestServer extends Frame implements MouseListener, MouseMotionListener, KeyListener
 {
     private ArrayList<Message> messageCache;
+    private Match thisMatch;
+    private ArrayList<Rectangle> matches;
     private ArrayList<Match> matchCache;
-    private Rectangle chatToggle, chatArea, newGame;
-    private boolean chatVisible;
+    private Rectangle chatToggle, chatArea, newGame, tempLeave;
     private Client local;
     private ObjectOutputStream objectToServer;
     private ObjectInputStream objectFromServer;
@@ -40,13 +41,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private FontMetrics metrics;
     private Image backbuffer;
     private Graphics backg;
-    private Color transparentGray, babyBlue, lightGrey, lightGreyT;
+    private boolean[] menuButtons;
+    private Color transparentGray, babyBlue, lightGrey, lightGreyT, babyBlueT;
     private int getWidth, getHeight, borderLeft, borderRight, borderTop, borderBottom, chatLeft,
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
-    private boolean firstGraphicsWindow, chatting;
+    private boolean firstGraphicsWindow, chatting, chatVisible, inMatch;
     private Image chessBackground;
-    private Font bigFont,mediumFont, Default;
+    private Font bigFont, mediumFont, Default;
     private ArrayList<String> Lines;
     private final char[] typableCharacters = {'a','b','c','d','e','f','g','h','i','j','k','l',
             'm','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H',
@@ -55,18 +57,22 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        menuButtons = new boolean[3];
+        thisMatch = null;
+        matches = new ArrayList<>();
+        inMatch = false;
         matchCache = new ArrayList<>();
         chatLeft = 345;
         boxSize = 23;
         gameButtonHeight = 100;
         buttonStartHeight = borderTop+39;
         messageCache = new ArrayList<>();
-        try {/*cat*/chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
-            //chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
+        try {/*cat*///chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
+            chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
         } catch(IOException e) {System.out.println("Could not load images.");}
         chatVisible = true;
         chatting = false;
-        bigFont = new Font(Font.MONOSPACED, Font.BOLD, 36);
+        bigFont = new Font(Font.MONOSPACED, Font.BOLD, 30);
         mediumFont = new Font(Font.MONOSPACED, Font.BOLD, 20);
         Default = new Font("Monospaced",Font.PLAIN,40);
         localInput = "";
@@ -75,6 +81,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         addKeyListener(this);
         transparentGray = new Color(50,50,50,150);
         babyBlue = new Color(0,191,255);
+        babyBlueT = new Color(0,191,255,100);
         firstGraphicsWindow = true;
         borderLeft = 8;
         borderRight = 9;
@@ -159,6 +166,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             {
                 System.out.println("Something went wrong.");
             }
+            tempLeave = new Rectangle(0,0,getWidth,getHeight);
             chatToggle = new Rectangle(getWidth-(chatLeft+30),borderTop+39,30,getHeight);
             chatArea = new Rectangle(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
             newGame = new Rectangle(getWidth-150,borderTop,150,38);
@@ -174,8 +182,17 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         backg.setColor(Color.WHITE);
         backg.fillRect(0,0,getWidth,getHeight);
         backg.drawImage(chessBackground,0,0,getWidth,getHeight,this);
-        chatArea(backg);
-        homePage(backg);
+        if(!inMatch)
+        {
+            chatArea(backg);
+            homePage(backg);
+        }
+        else
+        {
+            matchArea(backg);
+        }
+        //dichotomyMenu(backg,"Join Match?","Yes","No",1);
+        dichotomyMenu(backg,"Choose Your Side","Black","White",1);
         g.drawImage(backbuffer, 0, 0, this);
         repaint();
     }
@@ -186,6 +203,45 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             if( a == check )
                 return 0;
         return -1;
+    }
+
+    private void dichotomyMenu(Graphics g, String message, String optionOne, String optionTwo, int booleanIndex)
+    {
+        g.setColor(lightGrey);
+        g.setFont(bigFont);
+        metrics = g.getFontMetrics();
+        int length = metrics.stringWidth(message)+12;
+        g.fillRoundRect((getWidth-length)/2,(getHeight-150)/2,length,150,20,20);
+        g.setColor(Color.BLACK);
+        g.drawRoundRect((getWidth-length)/2,(getHeight-150)/2,length,150,20,20);
+        g.drawLine((getWidth-length)/2,(getHeight/2)-25,(getWidth+length)/2,(getHeight/2)-25);
+        g.drawLine((getWidth-length/2)/2,(getHeight/2)+25,(getWidth+length/2)/2,(getHeight/2)+25);
+        g.setColor(Color.WHITE);
+        length = metrics.stringWidth(message);
+        g.drawString(message,((getWidth-length)/2),(getHeight/2)-40);
+        length = metrics.stringWidth(optionOne);
+        g.drawString(optionOne,((getWidth-length)/2),(getHeight/2)+10);
+        length = metrics.stringWidth(optionTwo);
+        g.drawString(optionTwo,((getWidth-length)/2),(getHeight/2)+60);
+    }
+
+    private void updateMatchButtons()
+    {
+        matches.clear();
+        buttonStartHeight = borderTop+39;
+        int vis = chatVisible ? 1 : 0;
+        int nVis = !chatVisible ? 1 : 0;
+        for(int a = 0; a < matchCache.size(); a++)
+        {
+            matches.add(new Rectangle(borderLeft,buttonStartHeight,getWidth-chatLeft*vis-borderRight*nVis-(30+borderLeft),
+                    gameButtonHeight));
+            buttonStartHeight+=gameButtonHeight;
+        }
+    }
+
+    private void matchArea(Graphics g)
+    {
+        g.drawString("In match",100,100);
     }
 
     private void chatArea(Graphics g)
@@ -253,7 +309,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         buttonStartHeight = borderTop+39;
         int vis = chatVisible ? 1 : 0;
         int nVis = !chatVisible ? 1 : 0;
-        int curr = (getWidth-chatLeft*vis-borderRight*nVis-(30+borderLeft)) / metrics.stringWidth("A");
+        int curr;
         String display;
         for(Match a : matchCache)
         {
@@ -417,40 +473,57 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     {
         int pressX = e.getX();
         int pressY = e.getY();
-        /*
-        System.out.println("Click detected.");
-        System.out.println("Press X: "+pressX+" Press Y: "+pressY);
-        System.out.println("X: "+chatToggle.getX()+" Y: "+chatToggle.getY()+" Width: "+chatToggle.getWidth()+" Height"+chatToggle.getHeight());
-        */
-        if(chatToggle.contains(pressX,pressY))
+        if(!inMatch)
         {
-            //System.out.println("Contained.");
-            if(chatVisible)
+            if(chatToggle.contains(pressX,pressY))
             {
-                chatToggle.setBounds(getWidth-30,borderTop+39,30,getHeight);
-                chatArea.setBounds(0,0,0,0);
-                chatting = false;
+                if(chatVisible)
+                {
+                    chatToggle.setBounds(getWidth-30,borderTop+39,30,getHeight);
+                    chatArea.setBounds(0,0,0,0);
+                    chatting = false;
+                }
+                else
+                {
+                    chatToggle.setBounds(getWidth-chatLeft-30,borderTop+39,30,getHeight);
+                    chatArea.setBounds(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
+                    chatting = true;
+                }
+                chatVisible = !chatVisible;
+                updateMatchButtons();
             }
-            else
+            else if(newGame.contains(pressX,pressY))
             {
-                chatToggle.setBounds(getWidth-chatLeft-30,borderTop+39,30,getHeight);
-                chatArea.setBounds(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
-                chatting = true;
+                try{
+                    PVP curr = new PVP(local);
+                    thisMatch = curr;
+                    inMatch = true;
+                    objectToServer.writeObject(curr);
+                    objectToServer.reset();
+                } catch(IOException ex)
+                {
+                    inMatch = false;
+                    thisMatch = null;
+                    System.out.println("Could not send match.");
+                }
+                localInput = "";
             }
-            chatVisible = !chatVisible;
+            else chatting = chatArea.contains(pressX, pressY);
+            for(int i = 0; i < matches.size(); i++)
+            {
+                if(matches.get(i).contains(pressX,pressY))
+                {
+                    inMatch = true;
+                    thisMatch = matchCache.get(i);
+                    break;
+                }
+            }
         }
-        else if(newGame.contains(pressX,pressY))
+        else
         {
-            try{
-                objectToServer.writeObject(new PVP(local));
-                objectToServer.reset();
-            } catch(IOException ex)
-            {
-                System.out.println("Could not send match.");
-            }
-            localInput = "";
+            if(tempLeave.contains(pressX,pressY))
+                inMatch = false;
         }
-        else chatting = chatArea.contains(pressX, pressY);
         repaint();
     }
 
@@ -513,7 +586,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                         if(curr.get(0) instanceof Message)
                             messageCache = (ArrayList<Message>)object;
                         else
+                        {
                             matchCache = (ArrayList<Match>)object;
+                            updateMatchButtons();
+                        }
                     }
                 }catch(Exception e){System.out.println(e); break;}
             }
