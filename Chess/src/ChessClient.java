@@ -11,6 +11,8 @@ import java.net.*;
 import java.util.Date;
 import javax.imageio.ImageIO;
 
+//Chess Pictures: 1 = Bishop, 2 = King, 3 = Knight, 4 = Pawn, 5 = Rook, 6 = Queen
+
 public class ChessClient
 {
     public static void main(String args[]) throws IOException
@@ -29,6 +31,12 @@ public class ChessClient
 
 class ClientTestServer extends Frame implements MouseListener, MouseMotionListener, KeyListener
 {
+    private final int SQUARE_SIZE = 85;
+    private int orgX, orgY;
+    private int hoveringX, hoveringY, hoverOffCenterX, hoverOffCenterY;
+    private Image hovering;
+    private Image[][] setUp;
+    private Rectangle[][] chessSquares;
     private ArrayList<Message> messageCache;
     private Match thisMatch;
     private ArrayList<Rectangle> matches;
@@ -42,12 +50,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private Image backbuffer;
     private Graphics backg;
     private boolean[] menuButtons;
-    private Color transparentGray, babyBlue, lightGrey, lightGreyT, babyBlueT;
+    private Color transparentGray, babyBlue, lightGrey, lightGreyT, babyBlueT, boardBrown, boardTan;
     private int getWidth, getHeight, borderLeft, borderRight, borderTop, borderBottom, chatLeft,
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
-    private boolean firstGraphicsWindow, chatting, chatVisible, inMatch;
+    private boolean firstGraphicsWindow, chatting, chatVisible, inMatch, firstMatchWindow;
     private Image chessBackground;
+    private Image[] whitePieces;
+    private Image[] blackPieces;
     private Font bigFont, mediumFont, Default;
     private ArrayList<String> Lines;
     private final char[] typableCharacters = {'a','b','c','d','e','f','g','h','i','j','k','l',
@@ -57,6 +67,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        hovering = null;
+        firstMatchWindow = true;
+        whitePieces = new Image[6];
+        blackPieces = new Image[6];
         menuButtons = new boolean[3];
         thisMatch = null;
         matches = new ArrayList<>();
@@ -68,8 +82,39 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         buttonStartHeight = borderTop+39;
         messageCache = new ArrayList<>();
         try {/*cat*///chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
-            chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
+            //chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
+            for(int a = 0; a < 6; a++)
+            {
+                String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\W" + (a+1) + ".png";
+                whitePieces[a] = ImageIO.read(new File(name));
+            }
+            for(int a = 0; a < 6; a++)
+            {
+                String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\B" + (a+1) + ".png";
+                blackPieces[a] = ImageIO.read(new File(name));
+            }
         } catch(IOException e) {System.out.println("Could not load images.");}
+
+        chessSquares = new Rectangle[8][8];
+
+        ////////////////////// Fill Image Board /////////////////////
+
+        setUp = new Image[8][8];
+        setUp[0][0] = blackPieces[4]; setUp[0][1] = blackPieces[0];
+        setUp[0][2] = blackPieces[2]; setUp[0][3] = blackPieces[5];
+        setUp[0][4] = blackPieces[1]; setUp[0][5] = blackPieces[2];
+        setUp[0][6] = blackPieces[0]; setUp[0][7] = blackPieces[4];
+        for(int i = 0; i < 8; i++)
+            setUp[1][i] = blackPieces[3];
+        for(int i = 0; i < 8; i++)
+            setUp[6][i] = whitePieces[3];
+        setUp[7][0] = whitePieces[4]; setUp[7][1] = whitePieces[0];
+        setUp[7][2] = whitePieces[2]; setUp[7][3] = whitePieces[5];
+        setUp[7][4] = whitePieces[1]; setUp[7][5] = whitePieces[2];
+        setUp[7][6] = whitePieces[0]; setUp[7][7] = whitePieces[4];
+
+        /////////////////////////////////////////////////////////////
+
         chatVisible = true;
         chatting = false;
         bigFont = new Font(Font.MONOSPACED, Font.BOLD, 30);
@@ -82,6 +127,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         transparentGray = new Color(50,50,50,150);
         babyBlue = new Color(0,191,255);
         babyBlueT = new Color(0,191,255,100);
+        boardBrown = new Color(90,47,47);
+        boardTan = new Color(236,213,158);
         firstGraphicsWindow = true;
         borderLeft = 8;
         borderRight = 9;
@@ -166,7 +213,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             {
                 System.out.println("Something went wrong.");
             }
-            tempLeave = new Rectangle(0,0,getWidth,getHeight);
+            tempLeave = new Rectangle(0,0,100,100);
             chatToggle = new Rectangle(getWidth-(chatLeft+30),borderTop+39,30,getHeight);
             chatArea = new Rectangle(getWidth-chatLeft,borderTop+39,chatLeft-borderRight,getHeight);
             newGame = new Rectangle(getWidth-150,borderTop,150,38);
@@ -190,11 +237,18 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         else
         {
             matchArea(backg);
+            if(hovering!=null)
+                hoveringPiece(backg);
         }
         //dichotomyMenu(backg,"Join Match?","Yes","No",1);
-        dichotomyMenu(backg,"Choose Your Side","Black","White",1);
+        //dichotomyMenu(backg,"Choose Your Side","Black","White",1);
         g.drawImage(backbuffer, 0, 0, this);
         repaint();
+    }
+
+    private void hoveringPiece(Graphics g)
+    {
+        g.drawImage(hovering,hoveringX,hoveringY,SQUARE_SIZE-4,SQUARE_SIZE-4,this);
     }
 
     private int validChar(char a)
@@ -241,7 +295,41 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
     private void matchArea(Graphics g)
     {
+        g.setColor(Color.BLACK);
         g.drawString("In match",100,100);
+        int spaceAdd = getHeight-SQUARE_SIZE*8;
+        spaceAdd/=2;
+        spaceAdd = (((spaceAdd-borderTop)+(spaceAdd-borderBottom))/2)-(spaceAdd-borderTop);
+
+        if(firstMatchWindow)
+        {
+            firstGraphicsWindow = false;
+            for(int a = 0; a < 8; a++)
+                for (int b = 0; b < 8; b++) {
+                    chessSquares[a][b] = new Rectangle(((getWidth / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - b)),
+                            (((getHeight / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - a))) + spaceAdd,
+                            SQUARE_SIZE, SQUARE_SIZE);
+                }
+        }
+
+        for(int i = 0; i < 8; i++)
+            for (int k = 0; k < 8; k++) {
+                if ((k * 8 + i + k % 2) % 2 == 0)
+                    g.setColor(boardTan);
+                else
+                    g.setColor(boardBrown);
+                g.fillRect(((getWidth / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - k)),
+                        (((getHeight / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - i))) + spaceAdd,
+                        SQUARE_SIZE, SQUARE_SIZE);
+            }
+
+        for(int i = 0; i < 8; i++)
+            for (int k = 0; k < 8; k++) {
+                if (setUp[i][k] != null)
+                    g.drawImage(setUp[i][k], 2 + (((getWidth / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - k))),
+                            2 + ((((getHeight / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - i))) + spaceAdd),
+                            SQUARE_SIZE - 4, SQUARE_SIZE - 4, this);
+            }
     }
 
     private void chatArea(Graphics g)
@@ -530,10 +618,73 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
     public void mouseMoved(MouseEvent e)    { }
     public void mouseEntered(MouseEvent e)  { }
-    public void mouseDragged(MouseEvent e)	{ }
+    public void mouseDragged(MouseEvent e)
+    {
+        int pressX = e.getX();
+        int pressY = e.getY();
+        if(inMatch)
+        {
+            if(hovering!=null)
+            {
+                hoveringX = pressX-hoverOffCenterX;
+                hoveringY = pressY-hoverOffCenterY;
+            }
+        }
+        repaint();
+    }
     public void mouseExited(MouseEvent e) 	{ }
-    public void mousePressed(MouseEvent e)	{ }
-    public void mouseReleased(MouseEvent e) { }
+    public void mousePressed(MouseEvent e)
+    {
+        int pressX = e.getX();
+        int pressY = e.getY();
+        if(inMatch)
+        {
+            for(int a = 0; a < 8; a++)
+            {
+                for(int b = 0; b < 8; b++)
+                {
+                    if(chessSquares[a][b].contains(pressX,pressY))
+                    {
+                        hovering = setUp[a][b];
+                        setUp[a][b] = null;
+                        orgY = a;
+                        orgX = b;
+                        hoverOffCenterX = pressX-((int)chessSquares[a][b].getX())+4;
+                        hoverOffCenterY = pressY-((int)chessSquares[a][b].getY())+4;
+                        hoveringX = pressX-hoverOffCenterX;
+                        hoveringY = pressY-hoverOffCenterY;
+                    }
+                }
+            }
+        }
+        repaint();
+    }
+    public void mouseReleased(MouseEvent e)
+    {
+        int pressX = e.getX();
+        int pressY = e.getY();
+        if(inMatch)
+        {
+            if(hovering!=null)
+            {
+                for(int a = 0; a < 8; a++)
+                {
+                    for(int b = 0; b < 8; b++)
+                    {
+                        if(chessSquares[a][b].contains(pressX,pressY))
+                        {
+                            if(setUp[a][b]==null)
+                                setUp[a][b] = hovering;
+                            else
+                                setUp[orgY][orgX] = hovering;
+                            hovering = null;
+                        }
+                    }
+                }
+            }
+        }
+        repaint();
+    }
     public void keyReleased(KeyEvent evt)   { }
     public void keyTyped(KeyEvent evt)      { }
     public void keyPressed(KeyEvent evt)
