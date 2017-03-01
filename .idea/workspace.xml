@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -801,7 +800,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488289313686</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Added an interactive chess board for the client.">
+      <created>1488347957104</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1488347957104</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -853,7 +859,8 @@
     <MESSAGE value="Minor changes to clean up the code." />
     <MESSAGE value="In the Client Side, added a working Lobby Chat which can be hidden. In the server, messages are instantly pushed to the Client, and basics functions such as checking that a username is available are carried out. With Chess Classes, added the central Client object to represent all users, and also added Match classes in preparation for the Chess part of this project." />
     <MESSAGE value="Added functionality to the &quot;+ New Game&quot; button in that a small banner is created. The banner is not interactive yet, and you cannot join a match at the time being." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added functionality to the &quot;+ New Game&quot; button in that a small banner is created. The banner is not interactive yet, and you cannot join a match at the time being." />
+    <MESSAGE value="Added an interactive chess board for the client." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added an interactive chess board for the client." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
