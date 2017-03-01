@@ -3,6 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClasses.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClasses.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessServer.java" afterPath="$PROJECT_DIR$/Chess/src/ChessServer.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -25,11 +28,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="658" column="9" selection-start-line="658" selection-start-column="9" selection-end-line="658" selection-end-column="9" />
+            <state relative-caret-position="119">
+              <caret line="100" column="37" selection-start-line="100" selection-start-column="37" selection-end-line="100" selection-end-column="37" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -37,12 +40,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChessServer.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ChessServer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="23">
-              <caret line="217" column="47" selection-start-line="217" selection-start-column="47" selection-end-line="217" selection-end-column="47" />
-              <folding />
+            <state relative-caret-position="263">
+              <caret line="294" column="1" selection-start-line="294" selection-start-column="1" selection-end-line="294" selection-end-column="1" />
+              <folding>
+                <element signature="e#8583#8584#0" expanded="true" />
+                <element signature="e#8626#8627#0" expanded="true" />
+                <element signature="e#9084#9085#0" expanded="true" />
+                <element signature="e#9127#9128#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -50,17 +58,13 @@
       <file leaf-file-name="ChessClasses.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClasses.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1309">
-              <caret line="101" column="1" selection-start-line="101" selection-start-column="1" selection-end-line="101" selection-end-column="1" />
+            <state relative-caret-position="841">
+              <caret line="66" column="1" selection-start-line="66" selection-start-column="1" selection-end-line="66" selection-end-column="1" />
               <folding>
-                <element signature="e#962#963#0" expanded="false" />
-                <element signature="e#993#994#0" expanded="false" />
-                <element signature="e#1300#1301#0" expanded="false" />
-                <element signature="e#1326#1327#0" expanded="false" />
-                <element signature="e#1365#1366#0" expanded="false" />
-                <element signature="e#1396#1397#0" expanded="false" />
-                <element signature="e#1520#1521#0" expanded="false" />
-                <element signature="e#1546#1547#0" expanded="false" />
+                <element signature="e#1041#1042#0" expanded="true" />
+                <element signature="e#1070#1071#0" expanded="true" />
+                <element signature="e#1100#1101#0" expanded="true" />
+                <element signature="e#1127#1128#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -90,13 +94,9 @@
       <file leaf-file-name="ChappClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Chapp/src/ChappClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7344">
-              <caret line="443" column="30" selection-start-line="443" selection-start-column="30" selection-end-line="443" selection-end-column="30" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#675#676#0" expanded="false" />
-                <element signature="e#745#746#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="620">
+              <caret line="438" column="52" selection-start-line="438" selection-start-column="52" selection-end-line="438" selection-end-column="52" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -137,9 +137,9 @@
         <option value="$PROJECT_DIR$/Magic Cube/src/DisplayPractice.java" />
         <option value="$PROJECT_DIR$/Java Tests/src/Matrix.java" />
         <option value="$PROJECT_DIR$/Chess/src/Chess.java" />
+        <option value="$PROJECT_DIR$/Chess/src/ChessClient.java" />
         <option value="$PROJECT_DIR$/Chess/src/ChessClasses.java" />
         <option value="$PROJECT_DIR$/Chess/src/ChessServer.java" />
-        <option value="$PROJECT_DIR$/Chess/src/ChessClient.java" />
       </list>
     </option>
   </component>
@@ -807,7 +807,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488347957104</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Added an interactive chess board for the client.">
+      <created>1488347973131</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1488347973131</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -887,7 +894,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3757">
           <caret line="230" column="35" selection-start-line="230" selection-start-column="35" selection-end-line="230" selection-end-column="35" />
-          <folding />
+          <folding>
+            <element signature="e#8583#8584#0" expanded="true" />
+            <element signature="e#8626#8627#0" expanded="true" />
+            <element signature="e#9084#9085#0" expanded="true" />
+            <element signature="e#9127#9128#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -896,14 +908,10 @@
         <state relative-caret-position="1309">
           <caret line="101" column="1" selection-start-line="101" selection-start-column="1" selection-end-line="101" selection-end-column="1" />
           <folding>
-            <element signature="e#962#963#0" expanded="false" />
-            <element signature="e#993#994#0" expanded="false" />
-            <element signature="e#1300#1301#0" expanded="false" />
-            <element signature="e#1326#1327#0" expanded="false" />
-            <element signature="e#1365#1366#0" expanded="false" />
-            <element signature="e#1396#1397#0" expanded="false" />
-            <element signature="e#1520#1521#0" expanded="false" />
-            <element signature="e#1546#1547#0" expanded="false" />
+            <element signature="e#1041#1042#0" expanded="true" />
+            <element signature="e#1070#1071#0" expanded="true" />
+            <element signature="e#1100#1101#0" expanded="true" />
+            <element signature="e#1127#1128#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -931,11 +939,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7344">
           <caret line="443" column="30" selection-start-line="443" selection-start-column="30" selection-end-line="443" selection-end-column="30" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#675#676#0" expanded="false" />
-            <element signature="e#745#746#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1080,6 +1084,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1087,6 +1094,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1109,49 +1119,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Chapp/src/ChappClient.java">
+    <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7344">
-          <caret line="443" column="30" selection-start-line="443" selection-start-column="30" selection-end-line="443" selection-end-column="30" />
+        <state relative-caret-position="119">
+          <caret line="100" column="37" selection-start-line="100" selection-start-column="37" selection-end-line="100" selection-end-column="37" />
           <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#675#676#0" expanded="false" />
-            <element signature="e#745#746#0" expanded="false" />
+            <element signature="n#!!doc" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessClasses.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1309">
-          <caret line="101" column="1" selection-start-line="101" selection-start-column="1" selection-end-line="101" selection-end-column="1" />
+        <state relative-caret-position="841">
+          <caret line="66" column="1" selection-start-line="66" selection-start-column="1" selection-end-line="66" selection-end-column="1" />
           <folding>
-            <element signature="e#962#963#0" expanded="false" />
-            <element signature="e#993#994#0" expanded="false" />
-            <element signature="e#1300#1301#0" expanded="false" />
-            <element signature="e#1326#1327#0" expanded="false" />
-            <element signature="e#1365#1366#0" expanded="false" />
-            <element signature="e#1396#1397#0" expanded="false" />
-            <element signature="e#1520#1521#0" expanded="false" />
-            <element signature="e#1546#1547#0" expanded="false" />
+            <element signature="e#1041#1042#0" expanded="true" />
+            <element signature="e#1070#1071#0" expanded="true" />
+            <element signature="e#1100#1101#0" expanded="true" />
+            <element signature="e#1127#1128#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Chapp/src/ChappClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="620">
+          <caret line="438" column="52" selection-start-line="438" selection-start-column="52" selection-end-line="438" selection-end-column="52" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="217" column="47" selection-start-line="217" selection-start-column="47" selection-end-line="217" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="658" column="9" selection-start-line="658" selection-start-column="9" selection-end-line="658" selection-end-column="9" />
+        <state relative-caret-position="263">
+          <caret line="294" column="1" selection-start-line="294" selection-start-column="1" selection-end-line="294" selection-end-column="1" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#8583#8584#0" expanded="true" />
+            <element signature="e#8626#8627#0" expanded="true" />
+            <element signature="e#9084#9085#0" expanded="true" />
+            <element signature="e#9127#9128#0" expanded="true" />
           </folding>
         </state>
       </provider>

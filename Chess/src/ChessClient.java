@@ -35,7 +35,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private int orgX, orgY;
     private int hoveringX, hoveringY, hoverOffCenterX, hoverOffCenterY;
     private Image hovering;
-    private Image[][] setUp;
+    private Image[][] setUp, matchBoard;
     private Rectangle[][] chessSquares;
     private ArrayList<Message> messageCache;
     private Match thisMatch;
@@ -54,7 +54,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private int getWidth, getHeight, borderLeft, borderRight, borderTop, borderBottom, chatLeft,
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
-    private boolean firstGraphicsWindow, chatting, chatVisible, inMatch, firstMatchWindow;
+    private boolean firstGraphicsWindow, chatting, chatVisible, inMatch, firstMatchWindow, isTurn, isWhite;
     private Image chessBackground;
     private Image[] whitePieces;
     private Image[] blackPieces;
@@ -67,6 +67,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        isTurn = false;
+        isWhite = false;
         hovering = null;
         firstMatchWindow = true;
         whitePieces = new Image[6];
@@ -96,6 +98,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         } catch(IOException e) {System.out.println("Could not load images.");}
 
         chessSquares = new Rectangle[8][8];
+        matchBoard = new Image[8][8];
 
         ////////////////////// Fill Image Board /////////////////////
 
@@ -664,25 +667,17 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         int pressX = e.getX();
         int pressY = e.getY();
         if(inMatch)
-        {
-            if(hovering!=null)
-            {
-                for(int a = 0; a < 8; a++)
-                {
-                    for(int b = 0; b < 8; b++)
-                    {
-                        if(chessSquares[a][b].contains(pressX,pressY))
+            if (hovering != null)
+                for (int a = 0; a < 8; a++)
+                    for (int b = 0; b < 8; b++)
+                        if (chessSquares[a][b].contains(pressX, pressY))
                         {
-                            if(setUp[a][b]==null)
+                            if (setUp[a][b] == null)
                                 setUp[a][b] = hovering;
                             else
                                 setUp[orgY][orgX] = hovering;
                             hovering = null;
                         }
-                    }
-                }
-            }
-        }
         repaint();
     }
     public void keyReleased(KeyEvent evt)   { }

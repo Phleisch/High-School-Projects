@@ -177,6 +177,8 @@ public class ChessServer
         }
 
         public ObjectOutputStream getObjectOutput() {return objectToClient;}
+        public ObjectInputStream getObjectInput() {return objectFromClient;}
+        public Client getClient() {return client;}
 
         /*public String getUsername()
         {
@@ -232,6 +234,62 @@ public class ChessServer
                 out.println("Connection lost with <Client: "+client.getName()+"> on " + fixDate("" + new Date()));
             }
 
+        }
+    }
+
+    private class HandleAMatch implements Runnable {
+        private Client white;
+        private Client black;
+        boolean serving = true;
+        ArrayList<HandleAClient> clients = new ArrayList<>();
+        /** Construct a thread */
+        HandleAMatch(HandleAClient client) {
+            clients.add(client);
+        }
+
+        private void sendMove(Move m)
+        {
+            for(int a = 0; a < clients.size(); a++)
+            {
+                try
+                {
+                    clients.get(a).getObjectOutput().writeObject(m);
+                }catch(IOException e){out.println("Could not connect to Client.");
+                                        clients.remove(a); a--;}
+            }
+        }
+
+        private void addPerson(HandleAClient client)
+        {
+            clients.add(client);
+        }
+
+        public void run() {
+            try {
+                while (serving) try {
+                    for(int i = 0; i < clients.size(); i++)
+                    {
+                        Object object = clients.get(i).getObjectInput().readObject();
+                        if (object instanceof Move) {
+                            Move curr = (Move)object;
+                            sendMove(curr);
+                        } else if (object instanceof String) {
+                            String curr = (String)object;
+                            switch (curr) {
+                                case "white": white = clients.get(i).getClient(); break;
+                                case "black": black = clients.get(i).getClient(); break;
+                                case "leave": clients.remove(i); i--; break;
+                                case "forfeit": clients.remove(i); i--; break;
+                            }
+                        }
+                    }
+                } catch (ClassNotFoundException e) {
+                    out.println("Invalid object from Client was received.");
+                }
+            }
+            catch(IOException e) {
+                out.println(e+".");
+            }
         }
     }
 }

@@ -49,6 +49,23 @@ class Message implements java.io.Serializable
     String getSender(){return sender.getName();}
 }
 
+class Move implements java.io.Serializable
+{
+    private String player;
+    private String move;
+    Move(String color, String move)
+    {
+        player = color;
+        this.move = move;
+    }
+    public String getPlayer() {
+        return player;
+    }
+    public String getMove() {
+        return move;
+    }
+}
+
 abstract class Match implements java.io.Serializable
 {
     protected Player playerOne;
@@ -59,12 +76,7 @@ abstract class Match implements java.io.Serializable
         playerOne = one;
     }
 
-    Match(Player one, Player two)
-    {
-        playerOne = one;
-        playerTwo = two;
-    }
-
+    void addPlayerTwo(Client playerTwo) {this.playerTwo = playerTwo;}
     Player getPlayerOne(){return playerOne;}
     Player getPlayerTwo(){return playerTwo;}
     abstract String getType();
@@ -78,11 +90,6 @@ class PVP extends Match implements java.io.Serializable
         super(one);
     }
 
-    PVP(Player one, Player two)
-    {
-        super(one, two);
-    }
-
     String getType(){return "PVP";}
 }
 
@@ -91,11 +98,6 @@ class PVC extends Match implements java.io.Serializable
     PVC(Player one)
     {
         super(one);
-    }
-
-    PVC(Player one, Player two)
-    {
-        super(one, two);
     }
 
     String getType(){return "PVC";}
