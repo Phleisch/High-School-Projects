@@ -90,12 +90,12 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             //chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
             for(int a = 0; a < 6; a++)
             {
-                String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\W" + (a+1) + ".png";
+                String name = "C:\\Users\\s690016\\Desktop\\Chess Pieces\\W" + (a+1) + ".png";
                 whitePieces[a] = ImageIO.read(new File(name));
             }
             for(int a = 0; a < 6; a++)
             {
-                String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\B" + (a+1) + ".png";
+                String name = "C:\\Users\\s690016\\Desktop\\Chess Pieces\\B" + (a+1) + ".png";
                 blackPieces[a] = ImageIO.read(new File(name));
             }
         } catch(IOException e) {System.out.println("Could not load images.");}
@@ -634,26 +634,17 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     }
 
     //Check if Pawn's move is valid
-    private boolean validMoveP(int x1, int y1, int x2, int y2, String[][] board) {
-        if(!isWhite)
-        {
-            y1 = 7 - y1;
-            y2 = 7 - y2;
-        }
-        System.out.println("Initial position: "+board[y1][x1]);
-        System.out.println("Try location: "+board[y2][x2]+"\n");
-        boolean moved = true;
-        boolean white = board[y1][x1].contains("W");
-        if(( board[y1][x1].contains("B") || board[y1][x1].contains("W") ) && y1 == 1)
-            moved = false;
+    private boolean validMoveP(int x1, int y1, int x2, int y2, String[][] board)
+    {
+        System.out.println("y1: "+y1+" x1: "+x1+" y2: "+y2+" x2: "+x2);
+        System.out.println(board[y1][x1]);
+        System.out.println(board[y2][x2]+"\n");
         int dX = Math.abs(x2-x1);
-        int dY = Math.abs(y2-y1);
-        if( !moved && dY == 2 && dX == 0)
+        if(board[y2][x2].contains(" ") && y1-y2 == 1 && dX == 0)
             return true;
-        if(((white && board[y2][x2].contains("B")) || (!white && board[y2][x2].contains("W")))
-            && dX == 1 && y1-y2 > 0)
+        if(((isWhite && board[y2][x2].contains("B")) || (!isWhite && board[y2][x2].contains("W"))) && y1-y2==1 && dX==1)
             return true;
-        if(( board[y1][x1].contains("B") || board[y1][x1].contains("W")) && y1-y2 > 0)
+        if(y1==6 && y2==4 && board[y2][x2].contains(" ") && board[y2+1][x2].contains(" "))
             return true;
         return false;
     }
@@ -829,27 +820,21 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                             boolean validMove = false;
                             if(mirrorBoard[orgY][orgX].length()>1)
                             {
-                                String[][] p = flip(mirrorBoard);
-                                for(String[] c : p)
-                                    System.out.println(Arrays.toString(c));
-                                System.out.println();
-                                String[][] temp = isWhite ? mirrorBoard : flip(mirrorBoard);
                                 switch(mirrorBoard[orgY][orgX].substring(1))
                                 {
-                                    case "B": validMove = validMoveB(orgX,orgY,b,a,temp); break;
-                                    case "K": validMove = validMoveK(orgX,orgY,b,a,temp); break;
+                                    case "B": validMove = validMoveB(orgX,orgY,b,a,mirrorBoard); break;
+                                    case "K": validMove = validMoveK(orgX,orgY,b,a,mirrorBoard); break;
                                     case "N": validMove = validMoveN(orgX,orgY,b,a); break;
-                                    case "P": validMove = validMoveP(orgX,orgY,b,a,temp); break;
-                                    case "R": validMove = validMoveR(orgX,orgY,b,a,temp); break;
-                                    case "Q": validMove = validMoveQ(orgX,orgY,b,a,temp); break;
+                                    case "P": validMove = validMoveP(orgX,orgY,b,a,mirrorBoard); break;
+                                    case "R": validMove = validMoveR(orgX,orgY,b,a,mirrorBoard); break;
+                                    case "Q": validMove = validMoveQ(orgX,orgY,b,a,mirrorBoard); break;
                                     default: validMove = false;
                                 }
                             }
                             if ((matchBoard[a][b] == null || ((isWhite && mirrorBoard[a][b].contains("B")) ||
                                     (!isWhite && mirrorBoard[a][b].contains("W")))) && validMove
                                     && isTurn && ((isWhite && mirrorBoard[orgY][orgX].contains("W")) ||
-                                    (!isWhite && mirrorBoard[orgY][orgX].contains("B"))) && !(a==orgY && b==orgX)
-                                    && (orgY!=b && orgX!=a))
+                                    (!isWhite && mirrorBoard[orgY][orgX].contains("B"))) && !(a==orgY && b==orgX))
                             {
                                 matchBoard[a][b] = hovering;
                                 mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
