@@ -5,6 +5,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.Date;
 
 import static java.lang.System.*;
 
@@ -17,28 +18,29 @@ public class ChessServer
     private ArrayList<HandleAClient> tasks;
     private ArrayList<Message> messages = new ArrayList<>();
     private ArrayList<Client> clients = new ArrayList<>();
-    private ServerSocket serverSocket;
     private ArrayList<Match> matches = new ArrayList<>();
-    private boolean endService = false;
+    private ArrayList<HandleAMatch> matchCache = new ArrayList<>();
+
     public static void main(String[] args)
     {
         new ChessServer();
     }
 
     private ChessServer() {
-        tasks = new ArrayList<HandleAClient>();
+        tasks = new ArrayList<>();
         try {
             InetAddress addr = InetAddress.getLocalHost();
             //ip = addr.getHostAddress();
             out.println("IP: " + addr);
 
             // Create a server socket
-            serverSocket = new ServerSocket(8000);
+            ServerSocket serverSocket = new ServerSocket(8000);
             out.print("ChessServer server started on " + fixDate("" + new Date()) + '\n');
 
             // Number a client
             int clientNo = 1;
 
+            boolean endService = false;
             while (!endService) {
                 Socket socket = serverSocket.accept();
                 out.print("Starting thread for client " + clientNo + " on " + fixDate("" + new Date()) + '\n');
@@ -162,6 +164,7 @@ public class ChessServer
     // Define the thread class for handling new connection
     private class HandleAClient implements Runnable {
         private Socket socket; // A connected socket
+        private HandleAMatch match;
         boolean serving = true;
         ObjectOutputStream objectToClient;
         ObjectInputStream objectFromClient;
@@ -176,9 +179,16 @@ public class ChessServer
             }catch(IOException e){out.println("Could not connect to Client.");}
         }
 
-        public ObjectOutputStream getObjectOutput() {return objectToClient;}
-        public ObjectInputStream getObjectInput() {return objectFromClient;}
-        public Client getClient() {return client;}
+        void sendObject(Object object){
+            try{
+                objectToClient.writeObject(object);
+                objectToClient.reset();
+            } catch(Exception e) {
+                System.out.println(e);
+            }
+        }
+
+        ObjectOutputStream getObjectOutput(){ return objectToClient;}
 
         /*public String getUsername()
         {
@@ -207,88 +217,122 @@ public class ChessServer
                             objectToClient.writeObject(matches);
                             objectToClient.reset();
                         }
-                        System.out.println(curr);
                     } else if (object instanceof String) {
                         String curr = (String) object;
-                        if (!nameTaken(curr)) {
-                            client = new Client(curr);
-                            clients.add(client);
-                            objectToClient.writeObject(client);
+                        if(client==null) {
+                            if (!nameTaken(curr)) {
+                                client = new Client(curr);
+                                clients.add(client);
+                                objectToClient.writeObject(client);
+                            } else {
+                                objectToClient.writeObject(null);
+                            }
+                            objectToClient.reset();
                         } else {
-                            objectToClient.writeObject(null);
+                            if(curr.equals("leave"))
+                                match.removePerson(this);
                         }
-                        objectToClient.reset();
-                    } else if (object instanceof Match)
-                    {
+                    } else if (object instanceof Match) {
                         Match curr = (Match)object;
-                        matches.add(curr);
-                        writeOutMatches();
+                        int index = -1;
+                        for(int a = 0; a < matches.size(); a++) {
+                            if(matches.get(a).compareTo(curr)==0) {
+                                index = a;
+                                curr = matches.get(a);
+                            }
+                        }
+                        if(index==-1) {
+                            matches.add(curr);
+                            HandleAMatch m = new HandleAMatch(this);
+                            matchCache.add(m);
+                            match = m;
+                            writeOutMatches();
+                            new Thread(m).start();
+                        } else {
+                            matchCache.get(index).addPerson(this);
+                            if(matches.get(index).getPlayerTwo()==null) {
+                                matches.get(index).addPlayerTwo(client);
+                                match = matchCache.get(index);
+                                writeOutMatches();
+                            }
+                        }
+                    } else if(match!=null) {
+                        match.readInput(object);
                     }
                 } catch (ClassNotFoundException e) {
                     out.println("Invalid object from Client was received.");
                 }
             }
             catch(IOException e) {
+                out.println(e);
                 clients.remove(client);
                 tasks.remove(this);
                 out.println("Connection lost with <Client: "+client.getName()+"> on " + fixDate("" + new Date()));
             }
-
         }
     }
 
     private class HandleAMatch implements Runnable {
-        private Client white;
-        private Client black;
-        boolean serving = true;
+        private boolean serving = true;
+        private Board setUp = null;
         ArrayList<HandleAClient> clients = new ArrayList<>();
-        /** Construct a thread */
         HandleAMatch(HandleAClient client) {
-            clients.add(client);
-        }
-
-        private void sendMove(Move m)
-        {
-            for(int a = 0; a < clients.size(); a++)
+            String[][] board = new String[8][8];
+            board = new String[8][8];
+            for(int i = 0; i < 64; i++)
             {
-                try
-                {
-                    clients.get(a).getObjectOutput().writeObject(m);
-                }catch(IOException e){out.println("Could not connect to Client.");
-                                        clients.remove(a); a--;}
+                board[i/8][i%8] = "";
             }
-        }
-
-        private void addPerson(HandleAClient client)
-        {
+            board[0][0] = "BR"; board[0][1] = "BN";
+            board[0][2] = "BB"; board[0][3] = "BQ";
+            board[0][4] = "BK"; board[0][5] = "BB";
+            board[0][6] = "BN"; board[0][7] = "BR";
+            for(int i = 0; i < 8; i++)
+                board[1][i] = "BP";
+            for(int i = 0; i < 8; i++)
+                board[6][i] = "WP";
+            board[7][0] = "WR"; board[7][1] = "WN";
+            board[7][2] = "WB"; board[7][3] = "WQ";
+            board[7][4] = "WK"; board[7][5] = "WB";
+            board[7][6] = "WN"; board[7][7] = "WR";
+            setUp = new Board(board);
             clients.add(client);
+            client.sendObject(setUp);
         }
-
-        public void run() {
-            try {
-                while (serving) try {
-                    for(int i = 0; i < clients.size(); i++)
-                    {
-                        Object object = clients.get(i).getObjectInput().readObject();
-                        if (object instanceof Move) {
-                            Move curr = (Move)object;
-                            sendMove(curr);
-                        } else if (object instanceof String) {
-                            String curr = (String)object;
-                            switch (curr) {
-                                case "white": white = clients.get(i).getClient(); break;
-                                case "black": black = clients.get(i).getClient(); break;
-                                case "leave": clients.remove(i); i--; break;
-                                case "forfeit": clients.remove(i); i--; break;
-                            }
-                        }
-                    }
-                } catch (ClassNotFoundException e) {
-                    out.println("Invalid object from Client was received.");
-                }
+        void readInput(Object object)
+        {
+            if(object instanceof Board)
+            {
+                Board curr = (Board)object;
+                setUp.setBoard(curr.getBoard());
+                sendBoard(curr);
             }
-            catch(IOException e) {
-                out.println(e+".");
+        }
+        void removePerson(HandleAClient client)
+        {
+            clients.remove(clients.indexOf(client));
+            if(clients.size()==0)
+            {
+                int index = matchCache.indexOf(this);
+                matches.remove(index);
+                matchCache.remove(this);
+                writeOutMatches();
+                serving = false;
+            }
+        }
+        private void sendBoard(Board m)
+        {
+            for (HandleAClient client : clients) {
+                client.sendObject(m);
+            }
+        }
+        private void addPerson(HandleAClient client) {
+            clients.add(client);
+            client.sendObject(setUp);
+        }
+        public void run() {
+            while(true){
+                if (!(serving)) break;
             }
         }
     }
