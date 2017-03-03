@@ -108,7 +108,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         mirrorBoard = new String[8][8];
         for(int i = 0; i < 64; i++)
         {
-            mirrorBoard[i/8][i%8] = "";
+            mirrorBoard[i/8][i%8] = "  ";
         }
         mirrorBoard[0][0] = "BR"; mirrorBoard[0][1] = "BN";
         mirrorBoard[0][2] = "BB"; mirrorBoard[0][3] = "BQ";
@@ -635,16 +635,27 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
     //Check if Pawn's move is valid
     private boolean validMoveP(int x1, int y1, int x2, int y2, String[][] board) {
+        if(!isWhite)
+        {
+            y1 = 7 - y1;
+            y2 = 7 - y2;
+        }
+        System.out.println("Initial position: "+board[y1][x1]);
+        System.out.println("Try location: "+board[y2][x2]+"\n");
         boolean moved = true;
-        if(( board[y1][x1].contains("B") && y1 == 1 ) || (board[y1][x1].contains("W") && y1 == 6))
+        boolean white = board[y1][x1].contains("W");
+        if(( board[y1][x1].contains("B") || board[y1][x1].contains("W") ) && y1 == 1)
             moved = false;
         int dX = Math.abs(x2-x1);
         int dY = Math.abs(y2-y1);
-        if( !moved && dY == 2 )
+        if( !moved && dY == 2 && dX == 0)
             return true;
-        if(( board[y1][x1].contains("B") && y2-y1 < 0 ) || (board[y1][x1].contains("W") && y1-y2 < 0))
-            return false;
-        return !(dY > 1 || dX > 1);
+        if(((white && board[y2][x2].contains("B")) || (!white && board[y2][x2].contains("W")))
+            && dX == 1 && y1-y2 > 0)
+            return true;
+        if(( board[y1][x1].contains("B") || board[y1][x1].contains("W")) && y1-y2 > 0)
+            return true;
+        return false;
     }
 
     //Check if Queen's move is valid
@@ -666,7 +677,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         int currX = x1+changeX;
         int currY = y1+changeY;
         for(int i = 1; i < max; i++){
-            if(!board[currY][currX].equals(""))
+            if(!board[currY][currX].equals("  "))
                 works = false;
             currX+=changeX;
             currY+=changeY;
@@ -818,6 +829,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                             boolean validMove = false;
                             if(mirrorBoard[orgY][orgX].length()>1)
                             {
+                                String[][] p = flip(mirrorBoard);
+                                for(String[] c : p)
+                                    System.out.println(Arrays.toString(c));
+                                System.out.println();
                                 String[][] temp = isWhite ? mirrorBoard : flip(mirrorBoard);
                                 switch(mirrorBoard[orgY][orgX].substring(1))
                                 {
@@ -838,7 +853,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                             {
                                 matchBoard[a][b] = hovering;
                                 mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
-                                mirrorBoard[orgY][orgX] = "";
+                                mirrorBoard[orgY][orgX] = "  ";
                                 try{
                                     String[][] temp;
                                     if(!isWhite)

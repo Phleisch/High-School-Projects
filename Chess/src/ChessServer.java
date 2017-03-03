@@ -281,7 +281,7 @@ public class ChessServer
             board = new String[8][8];
             for(int i = 0; i < 64; i++)
             {
-                board[i/8][i%8] = "";
+                board[i/8][i%8] = "  ";
             }
             board[0][0] = "BR"; board[0][1] = "BN";
             board[0][2] = "BB"; board[0][3] = "BQ";
