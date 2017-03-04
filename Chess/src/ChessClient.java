@@ -56,7 +56,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
     private boolean firstGraphicsWindow, chatting, chatVisible, inMatch, firstMatchWindow, isTurn,
-                    firstBoard;
+                    firstBoard, toQueen, leftRookMove, rightRookMove, kingMove;
     private Boolean isWhite;
     private Image chessBackground;
     private Image[] whitePieces;
@@ -70,6 +70,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        leftRookMove = rightRookMove = kingMove = false;
+        toQueen = false;
         isTurn = false;
         isWhite = null;
         hovering = null;
@@ -616,7 +618,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private boolean validMoveK(int x1, int y1, int x2, int y2, String[][] board) {
         int dX = Math.abs(x2-x1);
         int dY = Math.abs(y2-y1);
-        return !(dX > 1 || dY > 1);
+        if(isCastle(x1,y1,x2,y2,board))
+            return true;
+        if(dX <= 1 && dY <= 1)
+        {
+            kingMove = true;
+            return true;
+        }
+        return false;
     }
 
     //Check if Knight's move is valid
@@ -630,30 +639,29 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private boolean validMoveR(int x1, int y1, int x2, int y2, String[][] board) {
         int dX = Math.abs(x2 - x1);
         int dY = Math.abs(y2 - y1);
-        return pathIsClear(board, x1, y1, x2, y2) && !(dX != 0 && dY != 0);
+        if(pathIsClear(board, x1, y1, x2, y2) && !(dX != 0 && dY != 0))
+        {
+            if(!leftRookMove && x1==0)
+                leftRookMove = true;
+            else if(!rightRookMove && x1==7)
+                rightRookMove = true;
+            return true;
+        }
+        return false;
     }
 
     //Check if Pawn's move is valid
     private boolean validMoveP(int x1, int y1, int x2, int y2, String[][] board) {
-        if(!isWhite)
-        {
-            y1 = 7 - y1;
-            y2 = 7 - y2;
-        }
-        System.out.println("Initial position: "+board[y1][x1]);
-        System.out.println("Try location: "+board[y2][x2]+"\n");
-        boolean moved = true;
-        boolean white = board[y1][x1].contains("W");
-        if(( board[y1][x1].contains("B") || board[y1][x1].contains("W") ) && y1 == 1)
-            moved = false;
         int dX = Math.abs(x2-x1);
-        int dY = Math.abs(y2-y1);
-        if( !moved && dY == 2 && dX == 0)
+        if(board[y2][x2].contains(" ") && dX == 0 && y1-y2==1)
+        {
+            if(y2==0)
+                toQueen = true;
             return true;
-        if(((white && board[y2][x2].contains("B")) || (!white && board[y2][x2].contains("W")))
-            && dX == 1 && y1-y2 > 0)
+        }
+        if((( isWhite && board[y2][x2].contains("B")) || (!isWhite && board[y2][x2].contains("W"))) && y1-y2 == 1 && dX==1)
             return true;
-        if(( board[y1][x1].contains("B") || board[y1][x1].contains("W")) && y1-y2 > 0)
+        if(y1==6 && y2==4 && board[y2][x2].contains(" ") && board[y2+1][x2].contains(" "))
             return true;
         return false;
     }
@@ -665,6 +673,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         return pathIsClear(board, x1, y1, x2, y2) && ((dX == dY) || (dX > 0 && dY == 0) || (dX == 0 && dY > 0));
     }
 
+    //Check if path from piece to destination is clear of other pieces
     private boolean pathIsClear(String[][] board, int x1, int y1, int x2, int y2) {
         boolean works = true;
         int changeX = x2-x1;
@@ -683,6 +692,16 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             currY+=changeY;
         }
         return works;
+    }
+
+    //Check if this move is a castle
+    private boolean isCastle(int x1, int y1, int x2, int y2, String[][] board) {
+        int dY = Math.abs(y2-y1);
+        if(dY==0 && x1-x2==3 && !kingMove && !leftRookMove && pathIsClear(board,x1,y1,x2,y2))
+            return true;
+        if(dY==0 && x1-x2==-2 && !kingMove && !rightRookMove && pathIsClear(board,x1,y1,x2,y2))
+            return true;
+        return false;
     }
 
     ////////////////////////////////////////////////
@@ -827,32 +846,57 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                         if (chessSquares[a][b].contains(pressX, pressY))
                         {
                             boolean validMove = false;
-                            if(mirrorBoard[orgY][orgX].length()>1)
+                            switch(mirrorBoard[orgY][orgX].substring(1))
                             {
-                                String[][] p = flip(mirrorBoard);
-                                for(String[] c : p)
-                                    System.out.println(Arrays.toString(c));
-                                System.out.println();
-                                String[][] temp = isWhite ? mirrorBoard : flip(mirrorBoard);
-                                switch(mirrorBoard[orgY][orgX].substring(1))
-                                {
-                                    case "B": validMove = validMoveB(orgX,orgY,b,a,temp); break;
-                                    case "K": validMove = validMoveK(orgX,orgY,b,a,temp); break;
-                                    case "N": validMove = validMoveN(orgX,orgY,b,a); break;
-                                    case "P": validMove = validMoveP(orgX,orgY,b,a,temp); break;
-                                    case "R": validMove = validMoveR(orgX,orgY,b,a,temp); break;
-                                    case "Q": validMove = validMoveQ(orgX,orgY,b,a,temp); break;
-                                    default: validMove = false;
-                                }
+                                case "B": validMove = validMoveB(orgX,orgY,b,a,mirrorBoard); break;
+                                case "K": validMove = validMoveK(orgX,orgY,b,a,mirrorBoard); break;
+                                case "N": validMove = validMoveN(orgX,orgY,b,a); break;
+                                case "P": validMove = validMoveP(orgX,orgY,b,a,mirrorBoard); break;
+                                case "R": validMove = validMoveR(orgX,orgY,b,a,mirrorBoard); break;
+                                case "Q": validMove = validMoveQ(orgX,orgY,b,a,mirrorBoard); break;
+                                default: validMove = false;
                             }
                             if ((matchBoard[a][b] == null || ((isWhite && mirrorBoard[a][b].contains("B")) ||
                                     (!isWhite && mirrorBoard[a][b].contains("W")))) && validMove
                                     && isTurn && ((isWhite && mirrorBoard[orgY][orgX].contains("W")) ||
-                                    (!isWhite && mirrorBoard[orgY][orgX].contains("B"))) && !(a==orgY && b==orgX)
-                                    && (orgY!=b && orgX!=a))
+                                    (!isWhite && mirrorBoard[orgY][orgX].contains("B"))) && !(a==orgY && b==orgX))
                             {
-                                matchBoard[a][b] = hovering;
-                                mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
+                                if(toQueen)
+                                {
+                                    if(isWhite)
+                                    {
+                                        mirrorBoard[a][b] = "WQ";
+                                        matchBoard[a][b] = whitePieces[5];
+                                    } else {
+                                        mirrorBoard[a][b] = "BQ";
+                                        matchBoard[a][b] = blackPieces[5];
+                                    }
+                                    toQueen = false;
+                                }
+                                else if(isCastle(orgX,orgY,b,a,mirrorBoard))
+                                {
+                                    mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
+                                    matchBoard[a][b] = hovering;
+                                    if(orgX-b==3)
+                                    {
+                                        mirrorBoard[a][b+1] = mirrorBoard[7][0];
+                                        mirrorBoard[7][0] = "  ";
+                                        matchBoard[a][b+1] = matchBoard[7][0];
+                                        matchBoard[7][0] = null;
+                                    }
+                                    else if(orgX-b==-2)
+                                    {
+                                        mirrorBoard[a][b-1] = mirrorBoard[7][7];
+                                        mirrorBoard[7][7] = "  ";
+                                        matchBoard[a][b-1] = matchBoard[7][7];
+                                        matchBoard[7][7] = null;
+                                    }
+                                }
+                                else
+                                {
+                                    matchBoard[a][b] = hovering;
+                                    mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
+                                }
                                 mirrorBoard[orgY][orgX] = "  ";
                                 try{
                                     String[][] temp;
