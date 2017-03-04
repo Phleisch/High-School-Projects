@@ -35,7 +35,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private int orgX, orgY;
     private int hoveringX, hoveringY, hoverOffCenterX, hoverOffCenterY;
     private Image hovering;
-    private Image[][] setUp, matchBoard;
+    private Image[][] matchBoard;
     private String[][] mirrorBoard;
     private Rectangle[][] chessSquares;
     private ArrayList<Message> messageCache;
@@ -56,7 +56,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
     private boolean firstGraphicsWindow, chatting, chatVisible, inMatch, firstMatchWindow, isTurn,
-                    firstBoard, toQueen, leftRookMove, rightRookMove, kingMove;
+                    firstBoard, toQueen, leftRookMove, rightRookMove, kingMove, blackCheck, whiteCheck;
     private Boolean isWhite;
     private Image chessBackground;
     private Image[] whitePieces;
@@ -70,7 +70,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
-        leftRookMove = rightRookMove = kingMove = false;
+        leftRookMove = rightRookMove = kingMove = blackCheck = whiteCheck = false;
         toQueen = false;
         isTurn = false;
         isWhite = null;
@@ -127,7 +127,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
         ////////////////////// Fill Image Board /////////////////////
 
-        setUp = new Image[8][8];
+        Image[][] setUp = new Image[8][8];
         setUp[0][0] = blackPieces[4]; setUp[0][1] = blackPieces[2];
         setUp[0][2] = blackPieces[0]; setUp[0][3] = blackPieces[5];
         setUp[0][4] = blackPieces[1]; setUp[0][5] = blackPieces[0];
@@ -326,7 +326,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private void matchArea(Graphics g)
     {
         g.setColor(Color.BLACK);
-        g.drawString(""+isTurn,100,100);
+        String toDraw = isTurn ? "Your turn" : "Their turn";
+        if(isWhite==null)
+            toDraw = "Someone's turn";
+        g.drawString(toDraw,20,55);
+        String bC = blackCheck ? "Black in check" : "";
+        String wC = whiteCheck ? "White in check" : "";
+        g.drawString(bC,20,85);
+        g.drawString(wC,20,115);
         int spaceAdd = getHeight-SQUARE_SIZE*8;
         spaceAdd/=2;
         spaceAdd = (((spaceAdd-borderTop)+(spaceAdd-borderBottom))/2)-(spaceAdd-borderTop);
@@ -704,6 +711,47 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         return false;
     }
 
+    //Check if anyone is in check
+    private boolean check(String opponent){
+        String other = opponent.equals("W") ? "B" : "W";
+        int kingX = 0; int kingY = 0;
+        boolean toGive = false;
+        for(int a = 0; a < 8; a++)
+        {
+            for(int b = 0; b < 8; b++)
+            {
+                if(mirrorBoard[a][b].equals(opponent+"K"))
+                {
+                    kingX = b;
+                    kingY = a;
+                }
+            }
+        }
+
+        for(int a = 0; a < 8; a++)
+        {
+            for(int b = 0; b < 8; b++)
+            {
+                if(mirrorBoard[a][b].contains(other))
+                {
+                    switch(mirrorBoard[a][b].substring(1))
+                    {
+                        case "B": toGive = validMoveB(b,a,kingX,kingY,mirrorBoard); break;
+                        case "K": toGive = validMoveK(b,a,kingX,kingY,mirrorBoard); break;
+                        case "N": toGive = validMoveN(b,a,kingX,kingY); break;
+                        case "P": toGive = validMoveP(b,a,kingX,kingY,mirrorBoard); break;
+                        case "R": toGive = validMoveR(b,a,kingX,kingY,mirrorBoard); break;
+                        case "Q": toGive = validMoveQ(b,a,kingX,kingY,mirrorBoard); break;
+                        default: toGive = false;
+                    }
+                    if(toGive)
+                        return toGive;
+                }
+            }
+        }
+        return toGive;
+    }
+
     ////////////////////////////////////////////////
     //            Java Event Methods              //
     ////////////////////////////////////////////////
@@ -1026,6 +1074,11 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                 }
                             }
                         }
+                        mirrorBoard = flip(mirrorBoard);
+                        System.out.println("1076");
+                        blackCheck = check("W");
+                        System.out.println("1078");
+                        whiteCheck = check("B");
                     }
                 }catch(Exception e){System.out.println(e); break;}
             }
