@@ -31,15 +31,27 @@ public class ChessClient
 
 class ClientTestServer extends Frame implements MouseListener, MouseMotionListener, KeyListener
 {
+    private String fileDest;
     private final int SQUARE_SIZE = 85;
+
+    //////////////////////////////////////// Match Related /////////////////////////////////////
     private int orgX, orgY;
     private int hoveringX, hoveringY, hoverOffCenterX, hoverOffCenterY;
     private Image hovering;
+    private ArrayList<Image> bPLost, wPLost;
     private Image[][] matchBoard;
     private String[][] mirrorBoard;
     private Rectangle[][] chessSquares;
-    private ArrayList<Message> messageCache;
     private Match thisMatch;
+    private Image[] whitePieces;
+    private Image[] blackPieces;
+    private Boolean isWhite;
+    private boolean inMatch, firstMatchWindow, isTurn,
+            firstBoard, toQueen, leftRookMove, rightRookMove, kingMove, blackCheck, whiteCheck,
+            gameOver;
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    private ArrayList<Message> messageCache;
     private ArrayList<Rectangle> matches;
     private ArrayList<Match> matchCache;
     private Rectangle chatToggle, chatArea, newGame, tempLeave;
@@ -55,12 +67,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private int getWidth, getHeight, borderLeft, borderRight, borderTop, borderBottom, chatLeft,
             messageStartIndex, textBoxYValue, charactersPerLine, boxSize, messStart,
             gameButtonHeight, buttonStartHeight;
-    private boolean firstGraphicsWindow, chatting, chatVisible, inMatch, firstMatchWindow, isTurn,
-                    firstBoard, toQueen, leftRookMove, rightRookMove, kingMove, blackCheck, whiteCheck;
-    private Boolean isWhite;
+    private boolean firstGraphicsWindow, chatting, chatVisible;
     private Image chessBackground;
-    private Image[] whitePieces;
-    private Image[] blackPieces;
     private Font bigFont, mediumFont, Default;
     private ArrayList<String> Lines;
     private final char[] typableCharacters = {'a','b','c','d','e','f','g','h','i','j','k','l',
@@ -70,6 +78,9 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        bPLost = new ArrayList<>();
+        wPLost = new ArrayList<>();
+        gameOver = false;
         leftRookMove = rightRookMove = kingMove = blackCheck = whiteCheck = false;
         toQueen = false;
         isTurn = false;
@@ -88,7 +99,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         gameButtonHeight = 100;
         buttonStartHeight = borderTop+39;
         messageCache = new ArrayList<>();
-        try {/*cat*///chessBackground = ImageIO.read(new File("C:\\Users\\KaiFl\\IdeaProjects\\High-School-Projects\\Chapp\\src\\cat.jpg"));
+        try {chessBackground = ImageIO.read(new File(fileDest));
             //chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
             for(int a = 0; a < 6; a++)
             {
@@ -219,6 +230,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 validName = false;
             }
         }
+
+        System.out.print("One last thing. Change background? Yes or no: ");
+        fileDest = user.nextLine();
+        if(fileDest.equalsIgnoreCase("yes"))
+        {
+            System.out.print("Set Image location: ");
+            fileDest = user.nextLine();
+        }
         init();
 
     }
@@ -327,13 +346,15 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     {
         g.setColor(Color.BLACK);
         String toDraw = isTurn ? "Your turn" : "Their turn";
+        toDraw = !gameOver ? toDraw : "";
         if(isWhite==null)
-            toDraw = "Someone's turn";
+            toDraw = !gameOver ? "Someone's turn" : "";
         g.drawString(toDraw,20,55);
-        String bC = blackCheck ? "Black in check" : "";
-        String wC = whiteCheck ? "White in check" : "";
+        String bC = blackCheck && !gameOver ? "Black in check" : "";
+        String wC = whiteCheck && !gameOver ? "White in check" : "";
         g.drawString(bC,20,85);
         g.drawString(wC,20,115);
+        g.drawString(gameOver(),20,145);
         int spaceAdd = getHeight-SQUARE_SIZE*8;
         spaceAdd/=2;
         spaceAdd = (((spaceAdd-borderTop)+(spaceAdd-borderBottom))/2)-(spaceAdd-borderTop);
@@ -359,7 +380,6 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                         (((getHeight / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - i))) + spaceAdd,
                         SQUARE_SIZE, SQUARE_SIZE);
             }
-
         for(int i = 0; i < 8; i++)
             for (int k = 0; k < 8; k++) {
                 if (matchBoard[i][k] != null)
@@ -367,6 +387,28 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                             2 + ((((getHeight / 2) + 4 * SQUARE_SIZE) - (SQUARE_SIZE * (8 - i))) + spaceAdd),
                             SQUARE_SIZE - 4, SQUARE_SIZE - 4, this);
             }
+        if(gameOver)
+        {
+            g.setColor(transparentGray);
+            g.fillRect((getWidth/2)-SQUARE_SIZE*4,((getHeight/2)-SQUARE_SIZE*4)+spaceAdd,8 * SQUARE_SIZE,8 * SQUARE_SIZE);
+        }
+
+        double currHeight = (getHeight / 2) -SQUARE_SIZE * 4 + spaceAdd;
+        int xPos = (getWidth / 2)  - SQUARE_SIZE * 4 - (((SQUARE_SIZE-1)/2)+4);
+        for(Image a : wPLost)
+        {
+            g.drawImage(a, xPos, (int) currHeight, (SQUARE_SIZE-1)/2, (SQUARE_SIZE-1)/2, this);
+            currHeight += (SQUARE_SIZE)/2.0;
+        }
+
+        currHeight = (getHeight / 2) -SQUARE_SIZE * 4 + spaceAdd;
+        xPos = (getWidth / 2)  + SQUARE_SIZE * 4 + 4;
+        for(Image a : bPLost)
+        {
+            g.drawImage(a, xPos, (int) currHeight, (SQUARE_SIZE-1)/2, (SQUARE_SIZE-1)/2, this);
+            currHeight += (SQUARE_SIZE)/2.0;
+        }
+
     }
 
     private void chatArea(Graphics g)
@@ -666,7 +708,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 toQueen = true;
             return true;
         }
-        if((( isWhite && board[y2][x2].contains("B")) || (!isWhite && board[y2][x2].contains("W"))) && y1-y2 == 1 && dX==1)
+        if((( isWhite && board[y2][x2].charAt(0)=='B') || (!isWhite && board[y2][x2].contains("W"))) && y1-y2 == 1 && dX==1)
             return true;
         if(y1==6 && y2==4 && board[y2][x2].contains(" ") && board[y2+1][x2].contains(" "))
             return true;
@@ -697,6 +739,11 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 works = false;
             currX+=changeX;
             currY+=changeY;
+            if(currX>7 || currX<0 || currY > 7 || currY < 0)
+            {
+                works = false;
+                break;
+            }
         }
         return works;
     }
@@ -709,6 +756,28 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         if(dY==0 && x1-x2==-2 && !kingMove && !rightRookMove && pathIsClear(board,x1,y1,x2,y2))
             return true;
         return false;
+    }
+
+    private String gameOver(){
+        boolean blackKing = false;
+        boolean whiteKing = false;
+        for(int i = 0; i < 8; i++)
+        {
+            for(int n = 0; n < 8; n++)
+            {
+                if(mirrorBoard[i][n].equals("BK"))
+                    blackKing = true;
+                else if(mirrorBoard[i][n].equals("WK"))
+                    whiteKing = true;
+            }
+        }
+        gameOver = true;
+        if(!blackKing)
+            return "White Wins!";
+        else if(!whiteKing)
+            return "Black Wins!";
+        gameOver = false;
+        return "";
     }
 
     //Check if anyone is in check
@@ -732,7 +801,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         {
             for(int b = 0; b < 8; b++)
             {
-                if(mirrorBoard[a][b].contains(other))
+                if((mirrorBoard[a][b].charAt(0)+"").equals(other))
                 {
                     switch(mirrorBoard[a][b].substring(1))
                     {
@@ -826,9 +895,15 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         {
             if(tempLeave.contains(pressX,pressY))
             {
-                inMatch = false;
+                orgX = orgY = hoveringX = hoveringY = hoverOffCenterY = hoverOffCenterX = 0;
+                hovering = null;
+                bPLost.clear();
+                wPLost.clear();
+                thisMatch = null;
+                inMatch = isTurn = toQueen = leftRookMove = rightRookMove = kingMove = blackCheck
+                = whiteCheck = gameOver = false;
+                firstMatchWindow = firstBoard = true;
                 isWhite = null;
-                isTurn = false;
                 try{
                     objectToServer.writeObject("leave");
                     objectToServer.reset();
@@ -860,7 +935,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     {
         int pressX = e.getX();
         int pressY = e.getY();
-        if(inMatch)
+        if(inMatch && hovering==null)
         {
             for(int a = 0; a < 8; a++)
             {
@@ -904,10 +979,11 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                 case "Q": validMove = validMoveQ(orgX,orgY,b,a,mirrorBoard); break;
                                 default: validMove = false;
                             }
-                            if ((matchBoard[a][b] == null || ((isWhite && mirrorBoard[a][b].contains("B")) ||
+                            if ((matchBoard[a][b] == null || ((isWhite && mirrorBoard[a][b].charAt(0)=='B') ||
                                     (!isWhite && mirrorBoard[a][b].contains("W")))) && validMove
                                     && isTurn && ((isWhite && mirrorBoard[orgY][orgX].contains("W")) ||
-                                    (!isWhite && mirrorBoard[orgY][orgX].contains("B"))) && !(a==orgY && b==orgX))
+                                    (!isWhite && mirrorBoard[orgY][orgX].charAt(0)=='B')) && !(a==orgY && b==orgX)
+                                    && !gameOver)
                             {
                                 if(toQueen)
                                 {
@@ -942,6 +1018,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                 }
                                 else
                                 {
+                                    if(mirrorBoard[a][b].charAt(0) == 'B')
+                                        bPLost.add(matchBoard[a][b]);
+                                    else if(mirrorBoard[a][b].charAt(0) == 'W')
+                                        wPLost.add(matchBoard[a][b]);
                                     matchBoard[a][b] = hovering;
                                     mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
                                 }
@@ -1074,11 +1154,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                 }
                             }
                         }
-                        mirrorBoard = flip(mirrorBoard);
-                        System.out.println("1076");
-                        blackCheck = check("W");
-                        System.out.println("1078");
-                        whiteCheck = check("B");
+                        blackCheck = check("B");
+                        whiteCheck = check("W");
                     }
                 }catch(Exception e){System.out.println(e); break;}
             }

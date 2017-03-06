@@ -264,9 +264,15 @@ public class ChessServer
                 }
             }
             catch(IOException e) {
+                serving = false;
                 out.println(e);
                 clients.remove(client);
                 tasks.remove(this);
+                if(match!=null)
+                {
+                    match.removePerson(this);
+                    writeOutMatches();
+                }
                 out.println("Connection lost with <Client: "+client.getName()+"> on " + fixDate("" + new Date()));
             }
         }
@@ -277,7 +283,7 @@ public class ChessServer
         private Board setUp = null;
         ArrayList<HandleAClient> clients = new ArrayList<>();
         HandleAMatch(HandleAClient client) {
-            String[][] board = new String[8][8];
+            String[][] board;
             board = new String[8][8];
             for(int i = 0; i < 64; i++)
             {
