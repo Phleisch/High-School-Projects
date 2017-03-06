@@ -39,6 +39,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private int hoveringX, hoveringY, hoverOffCenterX, hoverOffCenterY;
     private Image hovering;
     private ArrayList<Image> bPLost, wPLost;
+    private ArrayList<String> bPLostS, wPLostS;
     private Image[][] matchBoard;
     private String[][] mirrorBoard;
     private Rectangle[][] chessSquares;
@@ -78,6 +79,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        bPLostS = new ArrayList<>();
+        wPLostS = new ArrayList<>();
         bPLost = new ArrayList<>();
         wPLost = new ArrayList<>();
         gameOver = false;
@@ -100,8 +103,9 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         buttonStartHeight = borderTop+39;
         messageCache = new ArrayList<>();
         try {chessBackground = ImageIO.read(new File(fileDest));
-            //chessBackground = ImageIO.read(new File("C:\\Users\\s690016\\Pictures\\images.jpg"));
-            for(int a = 0; a < 6; a++)
+        } catch(IOException e) {System.out.println("Could not load images.");}
+
+        try {for(int a = 0; a < 6; a++)
             {
                 String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\W" + (a+1) + ".png";
                 whitePieces[a] = ImageIO.read(new File(name));
@@ -751,6 +755,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     //Check if this move is a castle
     private boolean isCastle(int x1, int y1, int x2, int y2, String[][] board) {
         int dY = Math.abs(y2-y1);
+        if(!board[y1][x1].contains("K"))
+            return false;
         if(dY==0 && x1-x2==3 && !kingMove && !leftRookMove && pathIsClear(board,x1,y1,x2,y2))
             return true;
         if(dY==0 && x1-x2==-2 && !kingMove && !rightRookMove && pathIsClear(board,x1,y1,x2,y2))
@@ -1018,10 +1024,19 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                 }
                                 else
                                 {
-                                    if(mirrorBoard[a][b].charAt(0) == 'B')
+                                    if(mirrorBoard[a][b].charAt(0) == 'B') {
+                                        bPLostS.add(mirrorBoard[a][b]);
                                         bPLost.add(matchBoard[a][b]);
-                                    else if(mirrorBoard[a][b].charAt(0) == 'W')
+                                    } else if(mirrorBoard[a][b].charAt(0) == 'W') {
+                                        wPLostS.add(mirrorBoard[a][b]);
                                         wPLost.add(matchBoard[a][b]);
+                                    }
+                                    try{
+                                        objectToServer.writeObject(bPLostS);
+                                        objectToServer.reset();
+                                        objectToServer.writeObject(wPLostS);
+                                        objectToServer.reset();
+                                    } catch(IOException ex){System.out.println("Could not update lost pieces.");}
                                     matchBoard[a][b] = hovering;
                                     mirrorBoard[a][b] = mirrorBoard[orgY][orgX];
                                 }
@@ -1104,11 +1119,43 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                         {
                             if(curr.get(0) instanceof Message)
                                 messageCache = (ArrayList<Message>)object;
-                            else if(curr.get(0) instanceof Match)
-                            {
+                            else if(curr.get(0) instanceof Match) {
                                 matchCache = (ArrayList<Match>)object;
                                 updateMatchButtons();
+                            } else if(curr.get(0) instanceof String) {
+                                ArrayList<String> arr = (ArrayList<String>) object;
+                                if(arr.get(0).contains("W"))
+                                    wPLostS = arr;
+                                else
+                                    bPLostS = arr;
+                                wPLost.clear();
+                                bPLost.clear();
+                                for(String a : wPLostS)
+                                {
+                                    switch(a)
+                                    {
+                                        case "WB": wPLost.add(whitePieces[0]); break;
+                                        case "WK": wPLost.add(whitePieces[1]); break;
+                                        case "WN": wPLost.add(whitePieces[2]); break;
+                                        case "WP": wPLost.add(whitePieces[3]); break;
+                                        case "WR": wPLost.add(whitePieces[4]); break;
+                                        case "WQ": wPLost.add(whitePieces[5]); break;
+                                    }
+                                }
+                                for(String a : bPLostS)
+                                {
+                                    switch(a)
+                                    {
+                                        case "BB": bPLost.add(blackPieces[0]); break;
+                                        case "BK": bPLost.add(blackPieces[1]); break;
+                                        case "BN": bPLost.add(blackPieces[2]); break;
+                                        case "BP": bPLost.add(blackPieces[3]); break;
+                                        case "BR": bPLost.add(blackPieces[4]); break;
+                                        case "BQ": bPLost.add(blackPieces[5]); break;
+                                    }
+                                }
                             }
+
                         }
                         else
                         {

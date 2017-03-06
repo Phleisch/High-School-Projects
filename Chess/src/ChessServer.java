@@ -282,6 +282,9 @@ public class ChessServer
         private boolean serving = true;
         private Board setUp = null;
         ArrayList<HandleAClient> clients = new ArrayList<>();
+        ArrayList<String> bPLost = new ArrayList<>();
+        ArrayList<String> wPLost = new ArrayList<>();
+
         HandleAMatch(HandleAClient client) {
             String[][] board;
             board = new String[8][8];
@@ -313,6 +316,22 @@ public class ChessServer
                 setUp.setBoard(curr.getBoard());
                 sendBoard(curr);
             }
+            else if(object instanceof ArrayList)
+            {
+                ArrayList curr = (ArrayList) object;
+                if(curr.size()>0)
+                {
+                    if(curr.get(0) instanceof String)
+                    {
+                        ArrayList<String> arr = (ArrayList<String>) object;
+                        if(arr.get(0).contains("W"))
+                            wPLost = arr;
+                        else
+                            bPLost = arr;
+                        sendLists();
+                    }
+                }
+            }
         }
         void removePerson(HandleAClient client)
         {
@@ -332,9 +351,20 @@ public class ChessServer
                 client.sendObject(m);
             }
         }
+
+        private void sendLists()
+        {
+            for (HandleAClient client : clients) {
+                client.sendObject(bPLost);
+                client.sendObject(wPLost);
+            }
+        }
+
         private void addPerson(HandleAClient client) {
             clients.add(client);
             client.sendObject(setUp);
+            client.sendObject(bPLost);
+            client.sendObject(wPLost);
         }
         public void run() {
             while(true){
