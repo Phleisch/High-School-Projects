@@ -50,6 +50,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private boolean inMatch, firstMatchWindow, isTurn,
             firstBoard, toQueen, leftRookMove, rightRookMove, kingMove, blackCheck, whiteCheck,
             gameOver;
+    private String gOM;
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     private ArrayList<Message> messageCache;
@@ -79,6 +80,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
             '}',']',':',';','"','<',',','>','.','?','/','\\','|','\'',' '};
     private void init()
     {
+        gOM = "";
         bPLostS = new ArrayList<>();
         wPLostS = new ArrayList<>();
         bPLost = new ArrayList<>();
@@ -358,7 +360,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         String wC = whiteCheck && !gameOver ? "White in check" : "";
         g.drawString(bC,20,85);
         g.drawString(wC,20,115);
-        g.drawString(gameOver(),20,145);
+        if(!gameOver)
+            g.drawString(gameOver(),20,145);
+        else
+            g.drawString(gOM,20,145);
         int spaceAdd = getHeight-SQUARE_SIZE*8;
         spaceAdd/=2;
         spaceAdd = (((spaceAdd-borderTop)+(spaceAdd-borderBottom))/2)-(spaceAdd-borderTop);
@@ -779,11 +784,11 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         }
         gameOver = true;
         if(!blackKing)
-            return "White Wins!";
+            gOM = "White Wins!";
         else if(!whiteKing)
-            return "Black Wins!";
-        gameOver = false;
-        return "";
+            gOM = "Black Wins!";
+        gameOver = gOM.length() > 0;
+        return gOM;
     }
 
     //Check if anyone is in check
@@ -901,6 +906,20 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         {
             if(tempLeave.contains(pressX,pressY))
             {
+                if(isWhite==null||gameOver)
+                {
+                    try{
+                        objectToServer.writeObject("leave");
+                        objectToServer.reset();
+                    } catch(IOException ex) {System.out.println("Could not leave match.");}
+                }
+                else
+                {
+                    try{
+                        objectToServer.writeObject("Forfeit");
+                        objectToServer.reset();
+                    } catch(IOException ex) {System.out.println("Could not leave match.");}
+                }
                 orgX = orgY = hoveringX = hoveringY = hoverOffCenterY = hoverOffCenterX = 0;
                 hovering = null;
                 bPLost.clear();
@@ -910,10 +929,6 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 = whiteCheck = gameOver = false;
                 firstMatchWindow = firstBoard = true;
                 isWhite = null;
-                try{
-                    objectToServer.writeObject("leave");
-                    objectToServer.reset();
-                } catch(IOException ex) {System.out.println("Could not leave match.");}
             }
         }
         repaint();
@@ -1203,6 +1218,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                         }
                         blackCheck = check("B");
                         whiteCheck = check("W");
+                    }  else if(object instanceof String) {
+                        String curr = (String)object;
+                        if(curr.contains("Game Over")) {
+                            gameOver = true;
+                            curr = curr.replace("Game Over, ","");
+                            if(!curr.equals(local.getName()))
+                                gOM = curr+" forfeit.";
+                        }
                     }
                 }catch(Exception e){System.out.println(e); break;}
             }

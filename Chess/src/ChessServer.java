@@ -188,6 +188,8 @@ public class ChessServer
             }
         }
 
+        private Client getClient() {return client;}
+
         ObjectOutputStream getObjectOutput(){ return objectToClient;}
 
         /*public String getUsername()
@@ -230,7 +232,9 @@ public class ChessServer
                             objectToClient.reset();
                         } else {
                             if(curr.equals("leave"))
-                                match.removePerson(this);
+                                match.removePerson(this,false);
+                            else if(curr.equals("Forfeit"))
+                                match.removePerson(this,true);
                         }
                     } else if (object instanceof Match) {
                         Match curr = (Match)object;
@@ -270,7 +274,7 @@ public class ChessServer
                 tasks.remove(this);
                 if(match!=null)
                 {
-                    match.removePerson(this);
+                    match.removePerson(this,false);
                     writeOutMatches();
                 }
                 out.println("Connection lost with <Client: "+client.getName()+"> on " + fixDate("" + new Date()));
@@ -333,7 +337,7 @@ public class ChessServer
                 }
             }
         }
-        void removePerson(HandleAClient client)
+        void removePerson(HandleAClient client, boolean forfeit)
         {
             clients.remove(clients.indexOf(client));
             if(clients.size()==0)
@@ -344,7 +348,17 @@ public class ChessServer
                 writeOutMatches();
                 serving = false;
             }
+            if(forfeit)
+                forfeit(client.getClient().getName());
         }
+
+        private void forfeit(String name)
+        {
+            for (HandleAClient client : clients) {
+                client.sendObject("Game Over, "+name);
+            }
+        }
+
         private void sendBoard(Board m)
         {
             for (HandleAClient client : clients) {
