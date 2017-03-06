@@ -4,7 +4,6 @@
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessServer.java" afterPath="$PROJECT_DIR$/Chess/src/ChessServer.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -30,8 +29,8 @@
       <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="121">
-              <caret line="908" column="43" selection-start-line="908" selection-start-column="43" selection-end-line="908" selection-end-column="43" />
+            <state relative-caret-position="-315">
+              <caret line="1192" column="25" selection-start-line="1192" selection-start-column="25" selection-end-line="1192" selection-end-column="25" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -43,7 +42,7 @@
       <file leaf-file-name="ChessServer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
+            <state relative-caret-position="1184">
               <caret line="355" column="9" selection-start-line="355" selection-start-column="9" selection-end-line="355" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -712,7 +711,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488820292945</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Added functionality such that a game ends when a player quits (forfeits).">
+      <created>1488822956041</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1488822956041</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TodoView">
@@ -781,7 +787,8 @@
     <MESSAGE value="Working on a method to detect if someone is in Check." />
     <MESSAGE value="Cleaning up the code, fixing bugs." />
     <MESSAGE value="Removed Castle Bug, allowed everyone to see the pieces that have been lost." />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed Castle Bug, allowed everyone to see the pieces that have been lost." />
+    <MESSAGE value="Added functionality such that a game ends when a player quits (forfeits)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added functionality such that a game ends when a player quits (forfeits)." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1220,7 +1227,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
+        <state relative-caret-position="1184">
           <caret line="355" column="9" selection-start-line="355" selection-start-column="9" selection-end-line="355" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -1230,8 +1237,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="908" column="43" selection-start-line="908" selection-start-column="43" selection-end-line="908" selection-end-column="43" />
+        <state relative-caret-position="-315">
+          <caret line="1192" column="25" selection-start-line="1192" selection-start-column="25" selection-end-line="1192" selection-end-column="25" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />

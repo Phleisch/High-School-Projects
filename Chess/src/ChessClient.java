@@ -378,10 +378,14 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                             SQUARE_SIZE, SQUARE_SIZE);
                 }
         }
-
+        boolean Standard;
+        if(isWhite == null)
+            Standard = true;
+        else
+            Standard = isWhite ? true : false;
         for(int i = 0; i < 8; i++)
             for (int k = 0; k < 8; k++) {
-                if (((k * 8 + i + k % 2) % 2 == 0 && isWhite) || ((k * 8 + i + k % 2) % 2 == 1 && !isWhite))
+                if (((k * 8 + i + k % 2) % 2 == 0 && Standard ) || ((k * 8 + i + k % 2) % 2 == 1 && !Standard))
                     g.setColor(boardTan);
                 else
                     g.setColor(boardBrown);
@@ -1183,7 +1187,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                     {
                         matchBoard = new Image[8][8];
                         Board board = (Board)object;
-                        if(isWhite==false)
+                        if(isWhite!=null && !isWhite)
                         {
                             mirrorBoard = flip(board.getBoard());
                         }
