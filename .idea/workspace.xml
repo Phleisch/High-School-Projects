@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -28,8 +29,8 @@
       <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-20451">
-              <caret line="39" column="27" selection-start-line="39" selection-start-column="27" selection-end-line="39" selection-end-column="27" />
+            <state relative-caret-position="238">
+              <caret line="1256" column="34" selection-start-line="1256" selection-start-column="34" selection-end-line="1256" selection-end-column="34" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -87,8 +88,8 @@
         <option value="$PROJECT_DIR$/Java Tests/src/Matrix.java" />
         <option value="$PROJECT_DIR$/Chess/src/Chess.java" />
         <option value="$PROJECT_DIR$/Chess/src/ChessClasses.java" />
-        <option value="$PROJECT_DIR$/Chess/src/ChessClient.java" />
         <option value="$PROJECT_DIR$/Chess/src/ChessServer.java" />
+        <option value="$PROJECT_DIR$/Chess/src/ChessClient.java" />
       </list>
     </option>
   </component>
@@ -745,7 +746,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488920358687</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Bug fixes being made such as spectators running into unexpected errors.">
+      <created>1488920368219</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1488920368219</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1190,8 +1198,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-20451">
-          <caret line="39" column="27" selection-start-line="39" selection-start-column="27" selection-end-line="39" selection-end-column="27" />
+        <state relative-caret-position="238">
+          <caret line="1256" column="34" selection-start-line="1256" selection-start-column="34" selection-end-line="1256" selection-end-column="34" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />

@@ -1254,6 +1254,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 catch(ClassNotFoundException e){System.out.println(e); break;}
             }
             System.exit(1);
+            //Hopefully this works
         }
     }
 }
