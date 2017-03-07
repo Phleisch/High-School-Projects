@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessServer.java" afterPath="$PROJECT_DIR$/Chess/src/ChessServer.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -30,7 +28,7 @@
       <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
+            <state relative-caret-position="-20465">
               <caret line="39" column="27" selection-start-line="39" selection-start-column="27" selection-end-line="39" selection-end-column="27" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
@@ -726,7 +724,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488824044991</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Bug fixes being made such as spectators running into unexpected errors.">
+      <created>1488919654760</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1488919654760</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TodoView">
@@ -797,7 +802,8 @@
     <MESSAGE value="Removed Castle Bug, allowed everyone to see the pieces that have been lost." />
     <MESSAGE value="Added functionality such that a game ends when a player quits (forfeits)." />
     <MESSAGE value="Currently, spectators cannot join a game. Minor fixes made." />
-    <option name="LAST_COMMIT_MESSAGE" value="Currently, spectators cannot join a game. Minor fixes made." />
+    <MESSAGE value="Bug fixes being made such as spectators running into unexpected errors." />
+    <option name="LAST_COMMIT_MESSAGE" value="Bug fixes being made such as spectators running into unexpected errors." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1170,7 +1176,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
+        <state relative-caret-position="-20465">
           <caret line="39" column="27" selection-start-line="39" selection-start-column="27" selection-end-line="39" selection-end-column="27" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
