@@ -231,10 +231,14 @@ public class ChessServer
                             }
                             objectToClient.reset();
                         } else {
-                            if(curr.equals("leave"))
+                            if(curr.equals("leave")){
                                 match.removePerson(this,false);
-                            else if(curr.equals("Forfeit"))
+                                match = null;
+                            }
+                            else if(curr.equals("Forfeit")){
                                 match.removePerson(this,true);
+                                match = null;
+                            }
                         }
                     } else if (object instanceof Match) {
                         Match curr = (Match)object;

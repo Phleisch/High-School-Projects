@@ -38,14 +38,15 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private int orgX, orgY;
     private int hoveringX, hoveringY, hoverOffCenterX, hoverOffCenterY;
     private Image hovering;
-    private ArrayList<Image> bPLost, wPLost;
-    private ArrayList<String> bPLostS, wPLostS;
-    private Image[][] matchBoard;
-    private String[][] mirrorBoard;
-    private Rectangle[][] chessSquares;
+    private ArrayList<Image> bPLost, wPLost; //Problems
+    private ArrayList<Image> bPLostDuplicate, wPLostDuplicate; //Protect against concurrent modification
+    private ArrayList<String> bPLostS, wPLostS; 
+    private Image[][] matchBoard; //Protected
+    private String[][] mirrorBoard; //Protected
+    private Rectangle[][] chessSquares; //Protected
     private Match thisMatch;
-    private Image[] whitePieces;
-    private Image[] blackPieces;
+    private Image[] whitePieces; //Doesn't change
+    private Image[] blackPieces; //Doesn't change
     private Boolean isWhite;
     private boolean inMatch, firstMatchWindow, isTurn,
             firstBoard, toQueen, leftRookMove, rightRookMove, kingMove, blackCheck, whiteCheck,
@@ -81,6 +82,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private void init()
     {
         gOM = "";
+        bPLostDuplicate = new ArrayList<>();
+        wPLostDuplicate = new ArrayList<>();
         bPLostS = new ArrayList<>();
         wPLostS = new ArrayList<>();
         bPLost = new ArrayList<>();
@@ -350,6 +353,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
 
     private void matchArea(Graphics g)
     {
+        bPLost = (ArrayList<Image>) bPLostDuplicate.clone();
+        wPLost = (ArrayList<Image>) wPLostDuplicate.clone();
         g.setColor(Color.BLACK);
         String toDraw = isTurn ? "Your turn" : "Their turn";
         toDraw = !gameOver ? toDraw : "";
@@ -798,6 +803,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     //Check if anyone is in check
     private boolean check(String opponent){
         String other = opponent.equals("W") ? "B" : "W";
+        Boolean initial = null;
+        if(isWhite!=null)
+            initial = isWhite;
+        isWhite = opponent.equals("W");
         int kingX = 0; int kingY = 0;
         boolean toGive = false;
         for(int a = 0; a < 8; a++)
@@ -828,11 +837,20 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                         case "Q": toGive = validMoveQ(b,a,kingX,kingY,mirrorBoard); break;
                         default: toGive = false;
                     }
-                    if(toGive)
+                    if(toGive){
+                        if(initial!=null)
+                            isWhite = initial;
+                        else
+                            isWhite = null;
                         return toGive;
+                    }
                 }
             }
         }
+        if(initial!=null)
+            isWhite = initial;
+        else
+            isWhite = null;
         return toGive;
     }
 
@@ -933,6 +951,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 = whiteCheck = gameOver = false;
                 firstMatchWindow = firstBoard = true;
                 isWhite = null;
+                gOM = "";
             }
         }
         repaint();
@@ -960,7 +979,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     {
         int pressX = e.getX();
         int pressY = e.getY();
-        if(inMatch && hovering==null)
+        if(inMatch && hovering==null && isWhite!=null)
         {
             for(int a = 0; a < 8; a++)
             {
@@ -1147,30 +1166,30 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                     wPLostS = arr;
                                 else
                                     bPLostS = arr;
-                                wPLost.clear();
-                                bPLost.clear();
+                                wPLostDuplicate.clear();
+                                bPLostDuplicate.clear();
                                 for(String a : wPLostS)
                                 {
                                     switch(a)
                                     {
-                                        case "WB": wPLost.add(whitePieces[0]); break;
-                                        case "WK": wPLost.add(whitePieces[1]); break;
-                                        case "WN": wPLost.add(whitePieces[2]); break;
-                                        case "WP": wPLost.add(whitePieces[3]); break;
-                                        case "WR": wPLost.add(whitePieces[4]); break;
-                                        case "WQ": wPLost.add(whitePieces[5]); break;
+                                        case "WB": wPLostDuplicate.add(whitePieces[0]); break;
+                                        case "WK": wPLostDuplicate.add(whitePieces[1]); break;
+                                        case "WN": wPLostDuplicate.add(whitePieces[2]); break;
+                                        case "WP": wPLostDuplicate.add(whitePieces[3]); break;
+                                        case "WR": wPLostDuplicate.add(whitePieces[4]); break;
+                                        case "WQ": wPLostDuplicate.add(whitePieces[5]); break;
                                     }
                                 }
                                 for(String a : bPLostS)
                                 {
                                     switch(a)
                                     {
-                                        case "BB": bPLost.add(blackPieces[0]); break;
-                                        case "BK": bPLost.add(blackPieces[1]); break;
-                                        case "BN": bPLost.add(blackPieces[2]); break;
-                                        case "BP": bPLost.add(blackPieces[3]); break;
-                                        case "BR": bPLost.add(blackPieces[4]); break;
-                                        case "BQ": bPLost.add(blackPieces[5]); break;
+                                        case "BB": bPLostDuplicate.add(blackPieces[0]); break;
+                                        case "BK": bPLostDuplicate.add(blackPieces[1]); break;
+                                        case "BN": bPLostDuplicate.add(blackPieces[2]); break;
+                                        case "BP": bPLostDuplicate.add(blackPieces[3]); break;
+                                        case "BR": bPLostDuplicate.add(blackPieces[4]); break;
+                                        case "BQ": bPLostDuplicate.add(blackPieces[5]); break;
                                     }
                                 }
                             }
@@ -1231,7 +1250,8 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                                 gOM = curr+" forfeit.";
                         }
                     }
-                }catch(Exception e){System.out.println(e); break;}
+                }catch(IOException e){System.out.println(e); break;}
+                catch(ClassNotFoundException e){System.out.println(e); break;}
             }
             System.exit(1);
         }
