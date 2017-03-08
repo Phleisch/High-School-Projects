@@ -40,7 +40,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
     private Image hovering;
     private ArrayList<Image> bPLost, wPLost; //Problems
     private ArrayList<Image> bPLostDuplicate, wPLostDuplicate; //Protect against concurrent modification
-    private ArrayList<String> bPLostS, wPLostS; 
+    private ArrayList<String> bPLostS, wPLostS;
     private Image[][] matchBoard; //Protected
     private String[][] mirrorBoard; //Protected
     private Rectangle[][] chessSquares; //Protected
@@ -111,13 +111,13 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         } catch(IOException e) {System.out.println("Could not load images.");}
 
         try {for(int a = 0; a < 6; a++)
-            {
-                String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\W" + (a+1) + ".png";
-                whitePieces[a] = ImageIO.read(new File(name));
-            }
+        {
+            String name = "C:\\Users\\s690016\\Desktop\\Chess Pieces\\W" + (a+1) + ".png";
+            whitePieces[a] = ImageIO.read(new File(name));
+        }
             for(int a = 0; a < 6; a++)
             {
-                String name = "C:\\Users\\KaiFl\\Desktop\\Chess Pieces\\B" + (a+1) + ".png";
+                String name = "C:\\Users\\s690016\\Desktop\\Chess Pieces\\B" + (a+1) + ".png";
                 blackPieces[a] = ImageIO.read(new File(name));
             }
         } catch(IOException e) {System.out.println("Could not load images.");}
@@ -126,7 +126,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         matchBoard = new Image[8][8];
 
         ////////////////////// Fill String Board /////////////////////
-        
+
         mirrorBoard = new String[8][8];
         for(int i = 0; i < 64; i++)
         {
@@ -246,6 +246,10 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         {
             System.out.print("Set Image location: ");
             fileDest = user.nextLine();
+        }
+        else
+        {
+            fileDest = "C:\\Users\\Public\\Pictures\\Sample Pictures\\Jellyfish.jpg";
         }
         init();
 
@@ -387,7 +391,7 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
         if(isWhite == null)
             Standard = true;
         else
-            Standard = isWhite ? true : false;
+            Standard = isWhite;
         for(int i = 0; i < 8; i++)
             for (int k = 0; k < 8; k++) {
                 if (((k * 8 + i + k % 2) % 2 == 0 && Standard ) || ((k * 8 + i + k % 2) % 2 == 1 && !Standard))
@@ -946,9 +950,13 @@ class ClientTestServer extends Frame implements MouseListener, MouseMotionListen
                 hovering = null;
                 bPLost.clear();
                 wPLost.clear();
+                bPLostS.clear();
+                wPLostS.clear();
+                wPLostDuplicate.clear();
+                bPLostDuplicate.clear();
                 thisMatch = null;
                 inMatch = isTurn = toQueen = leftRookMove = rightRookMove = kingMove = blackCheck
-                = whiteCheck = gameOver = false;
+                        = whiteCheck = gameOver = false;
                 firstMatchWindow = firstBoard = true;
                 isWhite = null;
                 gOM = "";

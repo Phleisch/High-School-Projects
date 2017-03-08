@@ -287,7 +287,7 @@ public class ChessServer
     }
 
     private class HandleAMatch implements Runnable {
-        private boolean serving = true;
+        private volatile boolean serving = true;
         private Board setUp = null;
         ArrayList<HandleAClient> clients = new ArrayList<>();
         ArrayList<String> bPLost = new ArrayList<>();
@@ -343,6 +343,7 @@ public class ChessServer
         }
         void removePerson(HandleAClient client, boolean forfeit)
         {
+            System.out.println(matchCache);
             clients.remove(clients.indexOf(client));
             if(clients.size()==0)
             {
@@ -386,8 +387,9 @@ public class ChessServer
         }
         public void run() {
             while(true){
-                if (!(serving)) break;
+                if (!serving) break;
             }
+            System.out.println("The end");
         }
     }
 }
