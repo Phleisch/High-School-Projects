@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -29,8 +28,8 @@
       <file leaf-file-name="ChessClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="1256" column="34" selection-start-line="1256" selection-start-column="34" selection-end-line="1256" selection-end-column="34" />
+            <state relative-caret-position="170">
+              <caret line="1247" column="18" selection-start-line="1247" selection-start-column="18" selection-end-line="1247" selection-end-column="18" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -42,7 +41,7 @@
       <file leaf-file-name="ChessServer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Chess/src/ChessServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="646">
+            <state relative-caret-position="-5621">
               <caret line="43" column="1" selection-start-line="43" selection-start-column="1" selection-end-line="43" selection-end-column="1" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -753,7 +752,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488920368219</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Test.">
+      <created>1488920408562</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1488920408562</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TodoView">
@@ -825,7 +831,8 @@
     <MESSAGE value="Added functionality such that a game ends when a player quits (forfeits)." />
     <MESSAGE value="Currently, spectators cannot join a game. Minor fixes made." />
     <MESSAGE value="Bug fixes being made such as spectators running into unexpected errors." />
-    <option name="LAST_COMMIT_MESSAGE" value="Bug fixes being made such as spectators running into unexpected errors." />
+    <MESSAGE value="Test." />
+    <option name="LAST_COMMIT_MESSAGE" value="Test." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1188,7 +1195,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
+        <state relative-caret-position="-5621">
           <caret line="43" column="1" selection-start-line="43" selection-start-column="1" selection-end-line="43" selection-end-column="1" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -1198,8 +1205,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Chess/src/ChessClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="1256" column="34" selection-start-line="1256" selection-start-column="34" selection-end-line="1256" selection-end-column="34" />
+        <state relative-caret-position="170">
+          <caret line="1247" column="18" selection-start-line="1247" selection-start-column="18" selection-end-line="1247" selection-end-column="18" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
