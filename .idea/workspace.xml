@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6635906c-12d1-4055-9d23-c3a228f9dc76" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessClient.java" afterPath="$PROJECT_DIR$/Chess/src/ChessClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chess/src/ChessServer.java" afterPath="$PROJECT_DIR$/Chess/src/ChessServer.java" />
     </list>
     <list id="7f75b866-d5b3-4af6-8bf5-1fdff3d6121f" name="Rejected commit: Default" comment="Java-based Chatroom Application Project" />
     <ignored path="High-School-Projects.iws" />
@@ -798,7 +796,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488920368219</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Changes to fixes the starting state of a game.">
+      <created>1489011022512</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1489011022512</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TodoView">
@@ -874,7 +879,8 @@
     <MESSAGE value="Added functionality such that a game ends when a player quits (forfeits)." />
     <MESSAGE value="Currently, spectators cannot join a game. Minor fixes made." />
     <MESSAGE value="Bug fixes being made such as spectators running into unexpected errors." />
-    <option name="LAST_COMMIT_MESSAGE" value="Bug fixes being made such as spectators running into unexpected errors." />
+    <MESSAGE value="Changes to fixes the starting state of a game." />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes to fixes the starting state of a game." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
