@@ -58,6 +58,7 @@ class Container extends Frame implements MouseListener, MouseMotionListener, Key
 
     //Objects to be manipulated by the user
     private ArrayList<Entity> entities;
+    private Entity grabbed;
 
     private boolean firstRun;
     private Long startT, elapsedT, dropT;
@@ -70,14 +71,16 @@ class Container extends Frame implements MouseListener, MouseMotionListener, Key
 
     public void init() {
 
+        grabbed = null;
         entities = new ArrayList<Entity>();
-        test = generateEntity(100,20,10,0,.75,500,20);
+        test = generateEntity(100,37,150,4,0.5,500,400);
         entities.add(test);
-        entities.add(generateEntity(100,3,10,0,1.0,200,20));
+        entities.add(generateEntity(100,4,20,2,0.5,20,400));
+        //entities.add(generateEntity(100,3,10,0,1.0,200,20));
         firstRun = true;
         dropT = 1000L;
         startT = elapsedT = 0L;
-        gravity = GRAVITYEARTH;
+        gravity = 10;
         friction = false;
 
         //Listens to events from mouse and keyboard
@@ -104,14 +107,15 @@ class Container extends Frame implements MouseListener, MouseMotionListener, Key
 
     public void update(Graphics g) {
         if(startT != 0)
-            elapsedT = System.currentTimeMillis() - startT;
-        accelerateEntities(elapsedT);
-        startT = System.currentTimeMillis();
-        moveEntities();
+            elapsedT = System.nanoTime() - startT;
+        accelerateEntities(750000L);
+        startT = System.nanoTime();
+        moveEntities(750000L);
         checkBounds();
         backg.setColor(Color.WHITE);
         backg.fillRect(0,0,getWidth(),getHeight());
         drawEntities(backg);
+        backg.drawString(""+(grabbed==null),300,300);
         g.drawImage(backbuffer, 0, 0, this);
         repaint();
 
@@ -146,14 +150,18 @@ class Container extends Frame implements MouseListener, MouseMotionListener, Key
     }
 
     private void accelerateEntities(Long time) {
-        double seconds = ((double) time) / 1000.0;
+        double seconds = (time) / 1000000000.0;
         for(Entity a : entities) {
+            if(grabbed == a)
+                continue;
             a.changeSpeed(gravity,seconds);
         }
     }
 
-    public void moveEntities() {
+    public void moveEntities(Long time) {
         for(Entity a : entities) {
+            if(grabbed == a)
+                continue;
             Coord b = a.getCenter();
             b.setCoord(b.getX(),(int)(b.getY()+a.getVelocity()));
             a.setClickArea(generatePolygon(a.getSides(),a.getSize(),b.getX(),b.getY()));
@@ -190,10 +198,35 @@ class Container extends Frame implements MouseListener, MouseMotionListener, Key
     public void mouseClicked(MouseEvent e)  { }
     public void mouseMoved(MouseEvent e)    { }
     public void mouseEntered(MouseEvent e)  { }
-    public void mouseDragged(MouseEvent e)  { }
+    public void mouseDragged(MouseEvent e)  {
+        int pressX = e.getX();
+        int pressY = e.getY();
+        if(grabbed!=null) {
+            Coord b = grabbed.getCenter();
+            b.setCoord(pressX,pressY);
+            grabbed.setClickArea(generatePolygon(grabbed.getSides(),grabbed.getSize(),b.getX(),b.getY()));
+        }
+        repaint();
+    }
     public void mouseExited(MouseEvent e) 	{ }
-    public void mousePressed(MouseEvent e)	{ }
-    public void mouseReleased(MouseEvent e)	{ }
+    public void mousePressed(MouseEvent e)	{
+        int pressX = e.getX();
+        int pressY = e.getY();
+        for(Entity a : entities) {
+            if(a.getClickArea().contains(pressX,pressY)) {
+                grabbed = a;
+                a.grab();
+            }
+        }
+        repaint();
+    }
+    public void mouseReleased(MouseEvent e)	{
+        if(grabbed!=null) {
+            grabbed.release();
+            grabbed = null;
+        }
+        repaint();
+    }
     public void keyReleased(KeyEvent evt)   { }
     public void keyTyped(KeyEvent evt)      { }
     public void keyPressed(KeyEvent evt)    { }

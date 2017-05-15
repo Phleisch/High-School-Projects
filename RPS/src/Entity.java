@@ -8,6 +8,7 @@ class Entity {
 
     private int mass, size, color, sides;
     private Coord center;
+    private boolean grabbed;
     // fER stands for fall energy retainment - energy retained after hitting a wall
     private double fStatic, fKinetic, fER, velocity;
     private Polygon clickArea;
@@ -22,6 +23,7 @@ class Entity {
         velocity = 0;
         fStatic = fKinetic = 0;
         center = ce;
+        grabbed = false;
     }
 
     public Entity(int m, int sd, int sz, int c, double fER, int[] pointsX, int[] pointsY, double fSt, double fK, Coord ce) {
@@ -80,6 +82,18 @@ class Entity {
 
     public int getSides() {
         return sides;
+    }
+
+    public void grab() {
+        grabbed = true;
+    }
+
+    public void release() {
+        grabbed = false;
+    }
+
+    public boolean getGrabbed() {
+        return grabbed;
     }
 
 }
