@@ -239,6 +239,10 @@ public class ChessServer
                                 match.removePerson(this,true);
                                 match = null;
                             }
+
+                            else if(curr.equals("player two joined")){
+                                match.playerTwoJoined();
+                            }
                         }
                     } else if (object instanceof Match) {
                         Match curr = (Match)object;
@@ -355,6 +359,10 @@ public class ChessServer
             }
             if(forfeit)
                 forfeit(client.getClient().getName());
+        }
+        void playerTwoJoined()
+        {
+            clients.get(0).sendObject("Start game");
         }
 
         private void forfeit(String name)

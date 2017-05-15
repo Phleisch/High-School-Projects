@@ -50,8 +50,8 @@ class Simulator extends Frame implements MouseListener, MouseMotionListener, Key
 	private Cube magic;
 	private boolean shifting;
 	private double hypotenuse;
-	final private int appX = 1000;
-	final private int appY = 650;
+	final int appX = 1000;
+	final int appY = 650;
     private Image backbuffer;
     private Graphics backg;
     private Long startT, elapsedT, dropT;
